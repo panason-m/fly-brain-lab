@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Drosophila melanogaster — body</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script type="module" crossorigin src="/arena/assets/fly-CrPrdUcX.js"></script>
+  <link rel="modulepreload" crossorigin href="/arena/assets/OrbitControls-Caf1KFgO.js">
+  <link rel="modulepreload" crossorigin href="/arena/assets/modulepreload-polyfill-P2Xu9kJm.js">
+  <link rel="modulepreload" crossorigin href="/arena/assets/render-resolution-DTCa-fBo.js">
+  <link rel="stylesheet" crossorigin href="/arena/assets/fly-BuQ8j7DC.css">
+</head>
+<body>
+<canvas id="c" aria-label="Interactive three-dimensional fruit fly. Drag to orbit and scroll or pinch to zoom."></canvas>
+<div id="loading"><div class="title">Drosophila melanogaster</div><div id="status">loading Blender body…</div></div>
+<header id="hud">
+  <h1><i>Drosophila melanogaster</i></h1>
+  <div class="sub">Adult <span id="sexLabel">male</span>, ≈2.5 mm. A living macro study in 3D.<br><a href="./">brain viewer</a> · <a href="./arena.html">arena</a></div>
+</header>
+<details id="controls" open>
+  <summary>Display</summary>
+  <div class="controlOptions">
+  <div class="seg" role="group" aria-label="Sex"><button data-sex="m" class="on">♂ male</button><button data-sex="f">♀ female</button></div>
+  <div class="seg" role="group" aria-label="Wings"><button data-wings="rest" class="on">wings folded</button><button data-wings="spread">spread</button><button data-wings="flight">flying</button></div>
+  <div class="seg" role="group" aria-label="Backdrop"><button data-bg="light" class="on">studio</button><button data-bg="dark">dark field</button></div>
+  <label><input type="checkbox" id="hairs" checked> setae</label>
+  <label><input type="checkbox" id="dof" checked> macro depth of field</label>
+  <label><input type="checkbox" id="labels"> anatomy on hover</label>
+  </div>
+</details>
+<nav id="cameraViews" class="seg" aria-label="Camera position"><button id="fullBody">Full body</button><button id="headDetail">Head detail</button></nav>
+<div id="tip" hidden><b></b><span></span></div>
+<div id="hint">drag to orbit · scroll or pinch to zoom · double-click to focus</div>
+</body>
+</html>

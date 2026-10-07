@@ -1,0 +1,2297 @@
+{
+ "_source": "scripts/ablation_ladder.mjs",
+ "generated": "2026-09-18",
+ "baseParams": {
+  "coba": true,
+  "neuromod": true,
+  "wSyn": 0.562,
+  "sizeAlpha": 0.572,
+  "kcThreshold": 7.319,
+  "inhGain": 0.577,
+  "eInh": -69.079,
+  "minSyn": 6,
+  "adaptInc": 0.072,
+  "tRef": 3.682,
+  "laminaBias": 2.86
+ },
+ "seeds": [
+  1000,
+  8919,
+  16838,
+  24757,
+  32676,
+  40595,
+  48514,
+  56433,
+  64352,
+  72271,
+  80190,
+  88109
+ ],
+ "criterion": {
+  "break": 0.1,
+  "sigmas": 3,
+  "statistic": "paired per-seed difference vs baseline"
+ },
+ "terms": [
+  "sugar",
+  "bitter",
+  "mix",
+  "kcSparse",
+  "kcSpecific",
+  "pnSpecific",
+  "dm1PN",
+  "baseline",
+  "offset",
+  "legs",
+  "rhythm",
+  "tarsalPER",
+  "sugarStop",
+  "noMDN",
+  "quietMN9",
+  "loom",
+  "noFalseAlarm"
+ ],
+ "rungs": [
+  {
+   "key": "baseline",
+   "level": "calibrated",
+   "dir": "-",
+   "patch": {},
+   "frozen": [],
+   "note": "the fitted model of docs/07-calibration.md",
+   "n": 12,
+   "score": 0.7961,
+   "scoreSem": 0.0057
+  },
+  {
+   "key": "w_binary",
+   "level": "efficacy",
+   "dir": "drop",
+   "patch": {
+    "wBinary": true
+   },
+   "frozen": [],
+   "note": "graded synapse counts replaced by their mean over retained edges: topology only",
+   "n": 12,
+   "score": 0.3373,
+   "scoreSem": 0.0014,
+   "dScore": {
+    "d": -0.4588,
+    "se": 0.0055,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": -0.7188,
+     "se": 0.0207,
+     "n": 12
+    },
+    "bitter": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "mix": {
+     "d": -0.9851,
+     "se": 0.0063,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": -0.5954,
+     "se": 0.0463,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": -0.7375,
+     "se": 0.0997,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": -0.1007,
+     "se": 0.0218,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": -0.0556,
+     "se": 0.0186,
+     "n": 12
+    },
+    "baseline": {
+     "d": 0.013,
+     "se": 0.0022,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": -1,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": -0.4262,
+     "se": 0.0126,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": -0.7951,
+     "se": 0.0572,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.7792,
+     "se": 0.0824,
+     "n": 12
+    },
+    "noMDN": {
+     "d": 0.0938,
+     "se": 0.034,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 1,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.3313,
+     "se": 0.0279,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": -1,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "sugar",
+    "mix",
+    "kcSparse",
+    "kcSpecific",
+    "pnSpecific",
+    "legs",
+    "rhythm",
+    "tarsalPER",
+    "sugarStop",
+    "loom",
+    "noFalseAlarm"
+   ],
+   "improved": [
+    "quietMN9"
+   ]
+  },
+  {
+   "key": "w_shuffle",
+   "level": "efficacy",
+   "dir": "control",
+   "patch": {
+    "wShuffle": true
+   },
+   "frozen": [],
+   "note": "same count distribution, permuted across retained edges: efficacy present but uninformative",
+   "n": 12,
+   "score": 0.4041,
+   "scoreSem": 0.0132,
+   "dScore": {
+    "d": -0.392,
+    "se": 0.0129,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": -0.5755,
+     "se": 0.0536,
+     "n": 12
+    },
+    "bitter": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "mix": {
+     "d": -0.9018,
+     "se": 0.0822,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": -0.1795,
+     "se": 0.0476,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": -0.584,
+     "se": 0.1259,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": -0.1481,
+     "se": 0.0333,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": -0.0243,
+     "se": 0.0729,
+     "n": 12
+    },
+    "baseline": {
+     "d": -0.1116,
+     "se": 0.0096,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": -0.8333,
+     "se": 0.0176,
+     "n": 12
+    },
+    "rhythm": {
+     "d": -0.0455,
+     "se": 0.0212,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": -0.7951,
+     "se": 0.0572,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.7177,
+     "se": 0.0945,
+     "n": 12
+    },
+    "noMDN": {
+     "d": -0.1875,
+     "se": 0.1233,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 1,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.3313,
+     "se": 0.0279,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": -1,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "sugar",
+    "mix",
+    "kcSparse",
+    "kcSpecific",
+    "pnSpecific",
+    "baseline",
+    "legs",
+    "tarsalPER",
+    "sugarStop",
+    "loom",
+    "noFalseAlarm"
+   ],
+   "improved": [
+    "quietMN9"
+   ]
+  },
+  {
+   "key": "minsyn_1",
+   "level": "efficacy",
+   "dir": "drop",
+   "patch": {
+    "minSyn": 1
+   },
+   "frozen": [
+    "minSyn"
+   ],
+   "note": "reconstruction threshold removed; every detected connection kept",
+   "n": 12,
+   "score": 0.7587,
+   "scoreSem": 0.004,
+   "dScore": {
+    "d": -0.0374,
+    "se": 0.0071,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": 0.0682,
+     "se": 0.0217,
+     "n": 12
+    },
+    "bitter": {
+     "d": -0.0573,
+     "se": 0.0162,
+     "n": 12
+    },
+    "mix": {
+     "d": -0.0059,
+     "se": 0.0113,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": -0.3758,
+     "se": 0.0384,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": -0.101,
+     "se": 0.0962,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": -0.1955,
+     "se": 0.0257,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": -0.0139,
+     "se": 0.0134,
+     "n": 12
+    },
+    "baseline": {
+     "d": -0.0822,
+     "se": 0.0032,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": -0.0205,
+     "se": 0.0183,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": 0.2049,
+     "se": 0.0572,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.5543,
+     "se": 0.0965,
+     "n": 12
+    },
+    "noMDN": {
+     "d": 0.0729,
+     "se": 0.0306,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": 0.0639,
+     "se": 0.0277,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "kcSparse",
+    "pnSpecific",
+    "sugarStop"
+   ],
+   "improved": [
+    "tarsalPER"
+   ]
+  },
+  {
+   "key": "minsyn_12",
+   "level": "efficacy",
+   "dir": "drop",
+   "patch": {
+    "minSyn": 12
+   },
+   "frozen": [
+    "minSyn"
+   ],
+   "note": "threshold doubled from the fitted 6 contacts",
+   "n": 12,
+   "score": 0.6572,
+   "scoreSem": 0.0062,
+   "dScore": {
+    "d": -0.1389,
+    "se": 0.008,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": 0.0161,
+     "se": 0.0326,
+     "n": 12
+    },
+    "bitter": {
+     "d": -0.1771,
+     "se": 0.0296,
+     "n": 12
+    },
+    "mix": {
+     "d": 0.0104,
+     "se": 0.0066,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": 0.0131,
+     "se": 0.0357,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": -0.3909,
+     "se": 0.1271,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": 0,
+     "se": 0.0186,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": 0.0087,
+     "se": 0.0151,
+     "n": 12
+    },
+    "baseline": {
+     "d": 0.1091,
+     "se": 0.0027,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": -0.0447,
+     "se": 0.0115,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": 0.0972,
+     "se": 0.062,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.4947,
+     "se": 0.0733,
+     "n": 12
+    },
+    "noMDN": {
+     "d": -0.9063,
+     "se": 0.034,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.7889,
+     "se": 0.0268,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "bitter",
+    "kcSpecific",
+    "sugarStop",
+    "noMDN",
+    "loom"
+   ],
+   "improved": [
+    "baseline"
+   ]
+  },
+  {
+   "key": "w_eb",
+   "level": "efficacy",
+   "dir": "swap",
+   "patch": {
+    "wEB": true,
+    "minSyn": 1
+   },
+   "frozen": [
+    "minSyn"
+   ],
+   "note": "empirical-Bayes weights from bilateral replicates (scripts/synapse_confidence.py), no threshold at all",
+   "n": 12,
+   "score": 0.5185,
+   "scoreSem": 0.0047,
+   "dScore": {
+    "d": -0.2776,
+    "se": 0.0079,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": -0.6432,
+     "se": 0.024,
+     "n": 12
+    },
+    "bitter": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "mix": {
+     "d": -0.9851,
+     "se": 0.0063,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": -0.5457,
+     "se": 0.03,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": -0.7375,
+     "se": 0.0997,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": -0.0859,
+     "se": 0.0245,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": -0.0122,
+     "se": 0.0148,
+     "n": 12
+    },
+    "baseline": {
+     "d": 0.307,
+     "se": 0.0025,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": 0.0034,
+     "se": 0.0203,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": -0.7951,
+     "se": 0.0572,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.7321,
+     "se": 0.0844,
+     "n": 12
+    },
+    "noMDN": {
+     "d": 0,
+     "se": 0.0414,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 1,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.4667,
+     "se": 0.0383,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "sugar",
+    "mix",
+    "kcSparse",
+    "kcSpecific",
+    "tarsalPER",
+    "sugarStop",
+    "loom"
+   ],
+   "improved": [
+    "baseline",
+    "quietMN9"
+   ]
+  },
+  {
+   "key": "w_eb_gated",
+   "level": "efficacy",
+   "dir": "swap",
+   "patch": {
+    "wEB": true,
+    "minSyn": 3
+   },
+   "frozen": [
+    "minSyn"
+   ],
+   "note": "empirical-Bayes weights with a light threshold, for comparison with the fitted 6-contact cut",
+   "n": 12,
+   "score": 0.5,
+   "scoreSem": 0.0042,
+   "dScore": {
+    "d": -0.2961,
+    "se": 0.0065,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": -0.6437,
+     "se": 0.0236,
+     "n": 12
+    },
+    "bitter": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "mix": {
+     "d": -0.9851,
+     "se": 0.0063,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": -0.5073,
+     "se": 0.0336,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": -0.7375,
+     "se": 0.0997,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": 0.0504,
+     "se": 0.0216,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": -0.0139,
+     "se": 0.0146,
+     "n": 12
+    },
+    "baseline": {
+     "d": 0.3101,
+     "se": 0.0032,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": -0.0078,
+     "se": 0.0145,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": -0.7951,
+     "se": 0.0572,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.6948,
+     "se": 0.1235,
+     "n": 12
+    },
+    "noMDN": {
+     "d": 0.0208,
+     "se": 0.0506,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 1,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.7104,
+     "se": 0.0322,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "sugar",
+    "mix",
+    "kcSparse",
+    "kcSpecific",
+    "tarsalPER",
+    "sugarStop",
+    "loom"
+   ],
+   "improved": [
+    "baseline",
+    "quietMN9"
+   ]
+  },
+  {
+   "key": "no_size_scaling",
+   "level": "cellular",
+   "dir": "drop",
+   "patch": {
+    "sizeAlpha": 0
+   },
+   "frozen": [
+    "sizeAlpha"
+   ],
+   "note": "per-neuron PSP scaling by relative volume removed",
+   "n": 12,
+   "score": 0.4693,
+   "scoreSem": 0.0073,
+   "dScore": {
+    "d": -0.3268,
+    "se": 0.0099,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": -0.0813,
+     "se": 0.0194,
+     "n": 12
+    },
+    "bitter": {
+     "d": -0.4688,
+     "se": 0.0732,
+     "n": 12
+    },
+    "mix": {
+     "d": -0.2843,
+     "se": 0.029,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": 0.0584,
+     "se": 0.0322,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": -0.7375,
+     "se": 0.0997,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": -0.0622,
+     "se": 0.0206,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": -0.7153,
+     "se": 0.0173,
+     "n": 12
+    },
+    "baseline": {
+     "d": -0.3884,
+     "se": 0.0034,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": -0.0357,
+     "se": 0.0154,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": -0.4236,
+     "se": 0.0741,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.7792,
+     "se": 0.0824,
+     "n": 12
+    },
+    "noMDN": {
+     "d": -0.5885,
+     "se": 0.0968,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0.2292,
+     "se": 0.0946,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.9306,
+     "se": 0.0279,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "bitter",
+    "mix",
+    "kcSpecific",
+    "dm1PN",
+    "baseline",
+    "tarsalPER",
+    "sugarStop",
+    "noMDN",
+    "loom"
+   ],
+   "improved": []
+  },
+  {
+   "key": "no_kc_threshold",
+   "level": "cellular",
+   "dir": "drop",
+   "patch": {
+    "kcThreshold": 0
+   },
+   "frozen": [
+    "kcThreshold"
+   ],
+   "note": "raised Kenyon-cell spike threshold removed",
+   "n": 12,
+   "score": 0.7383,
+   "scoreSem": 0.0036,
+   "dScore": {
+    "d": -0.0578,
+    "se": 0.006,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": -0.0031,
+     "se": 0.0226,
+     "n": 12
+    },
+    "bitter": {
+     "d": -0.0573,
+     "se": 0.018,
+     "n": 12
+    },
+    "mix": {
+     "d": -0.0285,
+     "se": 0.0107,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": -0.482,
+     "se": 0.0246,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": -0.7375,
+     "se": 0.0997,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": -0.0059,
+     "se": 0.0096,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": 0.026,
+     "se": 0.0058,
+     "n": 12
+    },
+    "baseline": {
+     "d": -0.1235,
+     "se": 0.0037,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": 0.0028,
+     "se": 0.0089,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": 0.2049,
+     "se": 0.0572,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": 0.001,
+     "se": 0.0786,
+     "n": 12
+    },
+    "noMDN": {
+     "d": 0.0729,
+     "se": 0.0306,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.1556,
+     "se": 0.0295,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "kcSparse",
+    "kcSpecific",
+    "baseline",
+    "loom"
+   ],
+   "improved": [
+    "tarsalPER"
+   ]
+  },
+  {
+   "key": "no_lamina_bias",
+   "level": "cellular",
+   "dir": "drop",
+   "patch": {
+    "laminaBias": 0
+   },
+   "frozen": [
+    "laminaBias"
+   ],
+   "note": "tonic depolarisation of the graded lamina monopolar cells removed",
+   "n": 12,
+   "score": 0.7961,
+   "scoreSem": 0.0057,
+   "dScore": {
+    "d": 0,
+    "se": 0,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "bitter": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "mix": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "baseline": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "noMDN": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [],
+   "improved": []
+  },
+  {
+   "key": "lamina_bias_max",
+   "level": "cellular",
+   "dir": "control",
+   "patch": {
+    "laminaBias": 25
+   },
+   "frozen": [
+    "laminaBias"
+   ],
+   "note": "lamina bias at the top of its search range: shows the parameter is not inert, only flat near the fit",
+   "n": 12,
+   "score": 0.7414,
+   "scoreSem": 0.0075,
+   "dScore": {
+    "d": -0.0547,
+    "se": 0.007,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": -0.012,
+     "se": 0.0355,
+     "n": 12
+    },
+    "bitter": {
+     "d": -0.0104,
+     "se": 0.007,
+     "n": 12
+    },
+    "mix": {
+     "d": 0.0131,
+     "se": 0.0057,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": 0.0127,
+     "se": 0.0056,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": 0.0024,
+     "se": 0.0071,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": 0,
+     "se": 0.0076,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": 0,
+     "se": 0.0057,
+     "n": 12
+    },
+    "baseline": {
+     "d": -0.391,
+     "se": 0.0022,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": 0.0141,
+     "se": 0.0211,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": -0.0347,
+     "se": 0.0568,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.1381,
+     "se": 0.0573,
+     "n": 12
+    },
+    "noMDN": {
+     "d": -0.0365,
+     "se": 0.0331,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.1014,
+     "se": 0.0376,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": -0.0208,
+     "se": 0.0208,
+     "n": 12
+    }
+   },
+   "broke": [
+    "baseline"
+   ],
+   "improved": []
+  },
+  {
+   "key": "cuba",
+   "level": "cellular",
+   "dir": "drop",
+   "patch": {
+    "coba": false
+   },
+   "frozen": [],
+   "note": "conductance-based synapses replaced by current-based ones",
+   "n": 12,
+   "score": 0.4711,
+   "scoreSem": 0.0057,
+   "dScore": {
+    "d": -0.325,
+    "se": 0.0081,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": 0.05,
+     "se": 0.0206,
+     "n": 12
+    },
+    "bitter": {
+     "d": -0.9219,
+     "se": 0.0781,
+     "n": 12
+    },
+    "mix": {
+     "d": -0.2788,
+     "se": 0.0159,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": -0.5052,
+     "se": 0.0345,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": -0.7375,
+     "se": 0.0997,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": -0.0207,
+     "se": 0.0242,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": -0.2205,
+     "se": 0.0175,
+     "n": 12
+    },
+    "baseline": {
+     "d": -0.391,
+     "se": 0.0022,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": 0.0357,
+     "se": 0.0159,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": 0.2014,
+     "se": 0.0557,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.7792,
+     "se": 0.0824,
+     "n": 12
+    },
+    "noMDN": {
+     "d": -0.7344,
+     "se": 0.0888,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.7062,
+     "se": 0.0328,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": -1,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "bitter",
+    "mix",
+    "kcSparse",
+    "kcSpecific",
+    "dm1PN",
+    "baseline",
+    "sugarStop",
+    "noMDN",
+    "loom",
+    "noFalseAlarm"
+   ],
+   "improved": [
+    "tarsalPER"
+   ]
+  },
+  {
+   "key": "nominal_einh",
+   "level": "cellular",
+   "dir": "drop",
+   "patch": {
+    "eInh": -70
+   },
+   "frozen": [
+    "eInh"
+   ],
+   "note": "fitted inhibitory reversal potential replaced by the nominal -70 mV",
+   "n": 12,
+   "score": 0.7875,
+   "scoreSem": 0.0045,
+   "dScore": {
+    "d": -0.0086,
+    "se": 0.0069,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": -0.0151,
+     "se": 0.0269,
+     "n": 12
+    },
+    "bitter": {
+     "d": -0.0208,
+     "se": 0.0118,
+     "n": 12
+    },
+    "mix": {
+     "d": 0.0036,
+     "se": 0.0053,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": -0.0484,
+     "se": 0.0116,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": 0.0017,
+     "se": 0.0139,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": -0.0119,
+     "se": 0.0197,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": -0.0052,
+     "se": 0.0063,
+     "n": 12
+    },
+    "baseline": {
+     "d": -0.0083,
+     "se": 0.0028,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": -0.0174,
+     "se": 0.0226,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": 0.1007,
+     "se": 0.057,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.0482,
+     "se": 0.108,
+     "n": 12
+    },
+    "noMDN": {
+     "d": 0.026,
+     "se": 0.0339,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.0694,
+     "se": 0.0367,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [],
+   "improved": []
+  },
+  {
+   "key": "no_inh_gain",
+   "level": "cellular",
+   "dir": "drop",
+   "patch": {
+    "inhGain": 1
+   },
+   "frozen": [
+    "inhGain"
+   ],
+   "note": "fitted inhibitory weight scaling removed",
+   "n": 12,
+   "score": 0.4864,
+   "scoreSem": 0.0057,
+   "dScore": {
+    "d": -0.3097,
+    "se": 0.0099,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": -0.7266,
+     "se": 0.0207,
+     "n": 12
+    },
+    "bitter": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "mix": {
+     "d": -0.9851,
+     "se": 0.0063,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": -0.8125,
+     "se": 0.0284,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": -0.7375,
+     "se": 0.0997,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": -0.2459,
+     "se": 0.0166,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": 0.2326,
+     "se": 0.0179,
+     "n": 12
+    },
+    "baseline": {
+     "d": 0.3599,
+     "se": 0.0039,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": -0.0259,
+     "se": 0.0131,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": -0.7951,
+     "se": 0.0572,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.2314,
+     "se": 0.1221,
+     "n": 12
+    },
+    "noMDN": {
+     "d": -0.9063,
+     "se": 0.034,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0.9896,
+     "se": 0.0104,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.6757,
+     "se": 0.0441,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "sugar",
+    "mix",
+    "kcSparse",
+    "kcSpecific",
+    "pnSpecific",
+    "tarsalPER",
+    "noMDN",
+    "loom"
+   ],
+   "improved": [
+    "dm1PN",
+    "baseline",
+    "quietMN9"
+   ]
+  },
+  {
+   "key": "no_refractory",
+   "level": "cellular",
+   "dir": "drop",
+   "patch": {
+    "tRef": 0.5
+   },
+   "frozen": [
+    "tRef"
+   ],
+   "note": "refractory period reduced from the fitted 3.8 ms to one time step",
+   "n": 12,
+   "score": 0.5527,
+   "scoreSem": 0.0041,
+   "dScore": {
+    "d": -0.2434,
+    "se": 0.0063,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": -0.0214,
+     "se": 0.0154,
+     "n": 12
+    },
+    "bitter": {
+     "d": -0.9688,
+     "se": 0.0163,
+     "n": 12
+    },
+    "mix": {
+     "d": -0.2552,
+     "se": 0.0286,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": -0.5246,
+     "se": 0.0455,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": -0.7375,
+     "se": 0.0997,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": -0.0356,
+     "se": 0.0777,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": 0.1094,
+     "se": 0.0597,
+     "n": 12
+    },
+    "baseline": {
+     "d": -0.391,
+     "se": 0.0022,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": -0.0074,
+     "se": 0.0117,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": 0.2049,
+     "se": 0.0572,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.7604,
+     "se": 0.0808,
+     "n": 12
+    },
+    "noMDN": {
+     "d": -0.4427,
+     "se": 0.1113,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.5833,
+     "se": 0.0396,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "bitter",
+    "mix",
+    "kcSparse",
+    "kcSpecific",
+    "baseline",
+    "sugarStop",
+    "noMDN",
+    "loom"
+   ],
+   "improved": [
+    "tarsalPER"
+   ]
+  },
+  {
+   "key": "add_depression",
+   "level": "cellular",
+   "dir": "add",
+   "patch": {
+    "depU": 0.2
+   },
+   "frozen": [],
+   "note": "short-term presynaptic depression switched on at the model default; the fit chose to leave it off",
+   "n": 12,
+   "score": 0.3865,
+   "scoreSem": 0.0028,
+   "dScore": {
+    "d": -0.4096,
+    "se": 0.0063,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": -0.5693,
+     "se": 0.0217,
+     "n": 12
+    },
+    "bitter": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "mix": {
+     "d": -0.9851,
+     "se": 0.0063,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": -0.8125,
+     "se": 0.0284,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": -0.7375,
+     "se": 0.0997,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": -0.0504,
+     "se": 0.0193,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": 0.2326,
+     "se": 0.0179,
+     "n": 12
+    },
+    "baseline": {
+     "d": 0.4948,
+     "se": 0.0026,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": -1,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": -0.4262,
+     "se": 0.0126,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": -0.7535,
+     "se": 0.0572,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.7792,
+     "se": 0.0824,
+     "n": 12
+    },
+    "noMDN": {
+     "d": -0.3229,
+     "se": 0.1071,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0.875,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.3313,
+     "se": 0.0279,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": -1,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "sugar",
+    "mix",
+    "kcSparse",
+    "kcSpecific",
+    "legs",
+    "rhythm",
+    "tarsalPER",
+    "sugarStop",
+    "noMDN",
+    "loom",
+    "noFalseAlarm"
+   ],
+   "improved": [
+    "dm1PN",
+    "baseline",
+    "quietMN9"
+   ]
+  },
+  {
+   "key": "no_delay",
+   "level": "cellular",
+   "dir": "drop",
+   "patch": {
+    "delay": 0.5
+   },
+   "frozen": [],
+   "note": "axonal delay reduced from 1.8 ms to one time step",
+   "n": 12,
+   "score": 0.7047,
+   "scoreSem": 0.0061,
+   "dScore": {
+    "d": -0.0914,
+    "se": 0.0052,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": -0.0542,
+     "se": 0.0222,
+     "n": 12
+    },
+    "bitter": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "mix": {
+     "d": 0.0149,
+     "se": 0.0063,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": 0.0479,
+     "se": 0.0332,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": 0.1591,
+     "se": 0.096,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": 0.0178,
+     "se": 0.0208,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": -0.0035,
+     "se": 0.0145,
+     "n": 12
+    },
+    "baseline": {
+     "d": 0.0352,
+     "se": 0.0061,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": -0.0124,
+     "se": 0.0177,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": -0.2708,
+     "se": 0.0699,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.2034,
+     "se": 0.0583,
+     "n": 12
+    },
+    "noMDN": {
+     "d": 0.0625,
+     "se": 0.0326,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.0958,
+     "se": 0.0269,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": -1,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "tarsalPER",
+    "sugarStop",
+    "noFalseAlarm"
+   ],
+   "improved": []
+  },
+  {
+   "key": "add_adaptation",
+   "level": "cellular",
+   "dir": "add",
+   "patch": {
+    "adaptInc": 2
+   },
+   "frozen": [
+    "adaptInc"
+   ],
+   "note": "spike-frequency adaptation switched on; the fit chose to leave it off",
+   "n": 12,
+   "score": 0.5797,
+   "scoreSem": 0.0087,
+   "dScore": {
+    "d": -0.2164,
+    "se": 0.0091,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": -0.3943,
+     "se": 0.0193,
+     "n": 12
+    },
+    "bitter": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "mix": {
+     "d": -0.326,
+     "se": 0.1427,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": 0.0599,
+     "se": 0.0349,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": -0.7375,
+     "se": 0.0997,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": -0.1659,
+     "se": 0.0256,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": 0.0885,
+     "se": 0.0168,
+     "n": 12
+    },
+    "baseline": {
+     "d": 0.3581,
+     "se": 0.0027,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": 0.0286,
+     "se": 0.0177,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": -0.7535,
+     "se": 0.0572,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.6613,
+     "se": 0.1147,
+     "n": 12
+    },
+    "noMDN": {
+     "d": -0.2708,
+     "se": 0.084,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0.875,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.3313,
+     "se": 0.0279,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": -1,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "sugar",
+    "kcSpecific",
+    "pnSpecific",
+    "tarsalPER",
+    "sugarStop",
+    "noMDN",
+    "loom",
+    "noFalseAlarm"
+   ],
+   "improved": [
+    "baseline",
+    "quietMN9"
+   ]
+  },
+  {
+   "key": "no_neuromod",
+   "level": "modulatory",
+   "dir": "drop",
+   "patch": {
+    "neuromod": false
+   },
+   "frozen": [],
+   "note": "fed octopamine tone and the modulatory-synapse split removed",
+   "n": 12,
+   "score": 0.7261,
+   "scoreSem": 0.0083,
+   "dScore": {
+    "d": -0.07,
+    "se": 0.0109,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": -0.2297,
+     "se": 0.0188,
+     "n": 12
+    },
+    "bitter": {
+     "d": -0.0052,
+     "se": 0.0052,
+     "n": 12
+    },
+    "mix": {
+     "d": 0.0149,
+     "se": 0.0063,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": 0.0085,
+     "se": 0.0349,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": 0.0637,
+     "se": 0.1296,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": -0.0593,
+     "se": 0.0245,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": 0.0174,
+     "se": 0.0162,
+     "n": 12
+    },
+    "baseline": {
+     "d": -0.0141,
+     "se": 0.005,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": -0.0411,
+     "se": 0.0173,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": -0.434,
+     "se": 0.0646,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.0278,
+     "se": 0.1008,
+     "n": 12
+    },
+    "noMDN": {
+     "d": 0.0208,
+     "se": 0.0444,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0.0729,
+     "se": 0.0286,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.0792,
+     "se": 0.0508,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": -0.0208,
+     "se": 0.0208,
+     "n": 12
+    }
+   },
+   "broke": [
+    "sugar",
+    "tarsalPER"
+   ],
+   "improved": []
+  },
+  {
+   "key": "sign_free",
+   "level": "control",
+   "dir": "control",
+   "patch": {
+    "signFree": true
+   },
+   "frozen": [],
+   "note": "every neuron excitatory: the floor the benchmark must be able to detect",
+   "n": 12,
+   "score": 0.5241,
+   "scoreSem": 0.0021,
+   "dScore": {
+    "d": -0.272,
+    "se": 0.0068,
+    "n": 12
+   },
+   "terms": {
+    "sugar": {
+     "d": 0.2354,
+     "se": 0.0211,
+     "n": 12
+    },
+    "bitter": {
+     "d": -1,
+     "se": 0,
+     "n": 12
+    },
+    "mix": {
+     "d": -0.5511,
+     "se": 0.0058,
+     "n": 12
+    },
+    "kcSparse": {
+     "d": -0.2905,
+     "se": 0.0405,
+     "n": 12
+    },
+    "kcSpecific": {
+     "d": -0.7375,
+     "se": 0.0997,
+     "n": 12
+    },
+    "pnSpecific": {
+     "d": 0.0711,
+     "se": 0.0196,
+     "n": 12
+    },
+    "dm1PN": {
+     "d": -0.7274,
+     "se": 0.0175,
+     "n": 12
+    },
+    "baseline": {
+     "d": -0.391,
+     "se": 0.0022,
+     "n": 12
+    },
+    "offset": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "legs": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "rhythm": {
+     "d": 0.5738,
+     "se": 0.0126,
+     "n": 12
+    },
+    "tarsalPER": {
+     "d": 0.2049,
+     "se": 0.0572,
+     "n": 12
+    },
+    "sugarStop": {
+     "d": -0.7792,
+     "se": 0.0824,
+     "n": 12
+    },
+    "noMDN": {
+     "d": -0.9063,
+     "se": 0.034,
+     "n": 12
+    },
+    "quietMN9": {
+     "d": 0,
+     "se": 0,
+     "n": 12
+    },
+    "loom": {
+     "d": -0.3313,
+     "se": 0.0279,
+     "n": 12
+    },
+    "noFalseAlarm": {
+     "d": -1,
+     "se": 0,
+     "n": 12
+    }
+   },
+   "broke": [
+    "bitter",
+    "mix",
+    "kcSparse",
+    "kcSpecific",
+    "dm1PN",
+    "baseline",
+    "sugarStop",
+    "noMDN",
+    "loom",
+    "noFalseAlarm"
+   ],
+   "improved": [
+    "sugar",
+    "rhythm",
+    "tarsalPER"
+   ]
+  }
+ ]
+}

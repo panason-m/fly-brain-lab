@@ -1,0 +1,1238 @@
+<title>Fly Brain, Machine Brain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a fixed 1600×900 stage scaled to fit, like a microscope field of view; one slide at a time, each built around one diagram or chart. Single dark look by choice (fluorescence on black). */
+:root{
+  --bg:#07090d; --stage:#0c1016; --panel:#121823; --line:#243042; --dim:#3a4658;
+  --fg:#e9eef5; --muted:#8d9bb0;
+  --brain:#5fe39a;   /* central brain, green */
+  --optic:#b18cff;   /* optic lobes, purple */
+  --vnc:#56b4ff;     /* ventral nerve cord, blue */
+  --female:#ff5fb8;  /* female map, magenta */
+  --warn:#ffb454;    /* caveats */
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);margin:0;overflow:hidden}
+.viewport{position:relative;height:100%;display:flex;flex-direction:column;padding-inline:16px;box-sizing:border-box}
+.stage-wrap{flex:1;min-height:0;position:relative}
+.stage{width:1600px;height:900px;position:absolute;left:50%;top:50%;transform-origin:center center;background:var(--stage);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.slide{position:absolute;inset:0;padding:70px 110px 90px;box-sizing:border-box;display:flex;flex-direction:column;opacity:0;visibility:hidden;transition:opacity .45s ease, transform .45s ease;transform:translateX(24px)}
+.slide.active{opacity:1;visibility:visible;transform:none}
+.slide.past{transform:translateX(-24px)}
+@media (prefers-reduced-motion:reduce){.slide{transition:none;transform:none!important}}
+
+.eyebrow{font-family:var(--mono);font-size:22px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}
+h1,h2{font-family:var(--display);font-weight:800;margin:0;text-wrap:balance;letter-spacing:-.02em;line-height:1.02}
+h1{font-size:112px}
+h2{font-size:64px;max-width:1380px}
+h3{margin:0}
+p{margin:0}
+.lead{font-size:32px;line-height:1.42;max-width:1100px}
+.g{color:var(--brain)} .p{color:var(--optic)} .b{color:var(--vnc)} .m{color:var(--female)} .w{color:var(--warn)} .mu{color:var(--muted)}
+.foot{position:absolute;left:110px;right:110px;bottom:34px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:18px;color:var(--muted);letter-spacing:.06em}
+.fig{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;margin-top:20px}
+.fig > svg{width:100%;height:100%;max-height:640px}
+svg text{font-family:var(--mono)}
+.note{font-family:var(--mono);font-size:17px;color:var(--muted);line-height:1.5}
+.ico:not([width]){width:1em;height:1em}
+.ico{stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* title */
+#neurons{position:absolute;inset:0;width:100%;height:100%}
+.title-slide{justify-content:flex-end;padding-bottom:130px}
+.title-slide .scrim{position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,16,22,.96) 0%,rgba(12,16,22,.82) 45%,rgba(12,16,22,0) 80%)}
+.title-slide > *:not(canvas):not(.scrim){position:relative}
+.title-slide h1{max-width:1000px}
+.title-slide .lead{margin-top:30px;max-width:820px;color:#c5cfdc}
+.title-slide .presenter{margin-top:48px;font-family:var(--mono);font-size:28px;letter-spacing:.08em;color:var(--brain)}
+.cite{font-family:var(--mono);font-size:15px;color:var(--muted);line-height:1.5;margin-top:auto;padding-top:14px}
+.steps{list-style:none;padding:0;margin:0;display:grid;gap:22px;font-size:24px;line-height:1.35;color:#c5cfdc}
+.steps b{font-family:var(--display);font-size:28px;margin-right:10px}
+.bodies{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:44px;flex:1;max-height:560px}
+.bodies .tile{gap:40px;padding:44px;justify-content:center}
+.bodies .hd{display:flex;align-items:center;gap:26px}
+.bodies .hd .ico{font-size:110px}
+.bodies h3{font-family:var(--display);font-size:42px;font-weight:700}
+.bodies .by{font-family:var(--mono);font-size:18px;color:var(--muted);margin-top:6px}
+.bodies ul{margin:0;padding-left:28px;font-size:29px;line-height:1.7;color:#c5cfdc}
+.openq{margin-top:auto;border-top:1px solid var(--line);padding-top:26px}
+.openq h3{font-family:var(--mono);font-size:20px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.oq{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:16px}
+.oq span{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:20px 24px;font-size:24px;line-height:1.35}
+.thanks{display:flex;justify-content:space-between;align-items:baseline;margin-top:28px;font-family:var(--display);font-size:40px;font-weight:700}
+.thanks span:last-child{font-family:var(--mono);font-size:22px;color:var(--brain);font-weight:400;letter-spacing:.06em}
+
+/* divider */
+.divider{justify-content:center}
+.divider .part{font-family:var(--mono);font-size:30px;letter-spacing:.2em;text-transform:uppercase}
+.divider h2{font-size:104px;margin-top:20px;max-width:980px}
+.divider .big-ico{position:absolute;right:110px;top:50%;transform:translateY(-50%);font-size:340px;opacity:.9}
+.divider .big-ico .ico{stroke-width:1.2}
+
+/* icon tiles */
+.tiles{display:grid;gap:24px;margin-top:44px}
+.tiles.t4{grid-template-columns:repeat(4,1fr)}
+.tiles.t3{grid-template-columns:repeat(3,1fr)}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:30px 28px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.tile .ico{font-size:64px}
+.tile h3{font-family:var(--display);font-size:34px;font-weight:600;line-height:1.1}
+.tile p{font-size:21px;line-height:1.4;color:var(--muted)}
+.tile .tag{font-family:var(--mono);font-size:18px;letter-spacing:.08em;text-transform:uppercase}
+
+/* agenda flow */
+.flow{display:grid;grid-template-columns:1fr 70px 1fr 70px 1fr 70px 1fr;align-items:center;margin-top:90px}
+.flow .node{display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center}
+.flow .disc{width:200px;height:200px;border-radius:50%;border:2px solid currentColor;display:grid;place-items:center;font-size:96px;background:var(--panel)}
+.flow .n{font-family:var(--mono);font-size:20px;letter-spacing:.12em;text-transform:uppercase}
+.flow h3{font-family:var(--display);font-size:36px;font-weight:600;color:var(--fg)}
+.flow .arrow{height:2px;background:var(--line);position:relative;margin-bottom:110px}
+.flow .arrow::after{content:"";position:absolute;right:-2px;top:-7px;border-left:14px solid var(--line);border-top:8px solid transparent;border-bottom:8px solid transparent}
+
+/* big numbers */
+.bignums{display:grid;grid-template-columns:repeat(3,1fr);gap:56px;margin-top:70px}
+.num{border-top:2px solid var(--line);padding-top:26px}
+.num .v{font-family:var(--display);font-weight:800;font-size:116px;line-height:1;letter-spacing:-.03em;white-space:nowrap;font-variant-numeric:tabular-nums}
+.num .k{font-size:25px;color:var(--muted);margin-top:14px;line-height:1.4}
+.dots{display:grid;grid-template-columns:repeat(60,1fr);gap:5px;margin-top:56px}
+.dots i{aspect-ratio:1;border-radius:50%;background:var(--brain);opacity:.85}
+.dots i.o{background:var(--dim);opacity:.6}
+
+/* bars */
+.bars{margin-top:56px;display:grid;gap:46px}
+.bar-group h3{font-family:var(--mono);font-size:22px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 16px;font-weight:400}
+.bar-row{display:grid;grid-template-columns:300px 1fr;gap:28px;align-items:center;margin-bottom:14px}
+.bar-row .lbl{font-size:24px;color:var(--muted)}
+.track{height:58px;position:relative}
+.fill{height:100%;border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:16px;box-sizing:border-box;font-family:var(--mono);font-weight:600;font-size:24px;color:#07090d;min-width:150px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.fill.old{background:var(--dim);color:var(--fg)}
+.fill.new{background:var(--brain)}
+.ratio{font-family:var(--display);font-size:34px;margin-top:6px}
+
+/* log charts */
+.logchart{margin-top:40px;display:grid;gap:18px}
+.chart-body{position:relative;display:grid;gap:20px}
+.lrow{display:grid;grid-template-columns:330px 1fr;gap:28px;align-items:center}
+.lrow .lbl{font-size:24px;line-height:1.2}
+.lrow .lbl small{display:block;font-size:17px;color:var(--muted);font-family:var(--mono);margin-top:4px}
+.ltrack{position:relative;height:50px;display:flex;align-items:center;gap:16px}
+.lbar{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.2,.8,.2,1);flex:none}
+.lval{font-family:var(--mono);font-size:24px;font-weight:600;white-space:nowrap}
+.axis{display:grid;grid-template-columns:330px 1fr;gap:28px}
+.axis .ticks{position:relative;height:30px;border-top:1px solid var(--line)}
+.axis .ticks span{position:absolute;top:8px;transform:translateX(-50%);font-family:var(--mono);font-size:17px;color:var(--muted);white-space:nowrap}
+.punch{margin-top:30px;font-family:var(--display);font-size:36px;font-weight:600;line-height:1.25}
+
+/* two-col */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:70px;margin-top:30px;flex:1;align-items:center}
+.cols > *{min-width:0}
+.cols > svg{width:100%;max-height:600px}
+
+/* repo header */
+.repo-id{font-family:var(--mono);font-size:26px;color:var(--vnc);margin-top:14px}
+.chips{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+.chip{font-family:var(--mono);font-size:19px;border:1px solid var(--line);border-radius:20px;padding:7px 16px;color:var(--muted)}
+.chip.on{border-color:var(--brain);color:var(--brain)}
+
+/* comparison */
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:44px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.vs .col{padding:30px 36px;display:grid;gap:18px;align-content:start}
+.vs .col + .col{border-left:1px solid var(--line)}
+.vs h3{font-family:var(--mono);font-size:24px;font-weight:600}
+.vs .r{display:grid;grid-template-columns:44px 1fr;gap:16px;align-items:center;font-size:25px}
+.vs .r .ico{font-size:34px;color:var(--muted)}
+
+/* videos */
+.videos{display:grid;grid-template-columns:repeat(2,1fr);gap:26px;margin-top:40px}
+a.vid{display:grid;grid-template-columns:220px 1fr;gap:24px;align-items:center;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:18px;background:var(--panel);transition:border-color .2s, transform .2s}
+a.vid:hover{border-color:var(--female);transform:translateY(-2px)}
+a.vid:focus-visible{outline:2px solid var(--brain);outline-offset:3px}
+.thumb{aspect-ratio:16/9;max-width:100%;border-radius:4px;background:radial-gradient(circle at 30% 30%,#1f2a3a,#0a0e14);display:grid;place-items:center;position:relative;overflow:hidden}
+.thumb::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 14px,rgba(95,227,154,.07) 14px 15px)}
+.play{width:58px;height:58px;border-radius:50%;background:var(--female);display:grid;place-items:center;position:relative}
+.play::after{content:"";border-left:18px solid #07090d;border-top:11px solid transparent;border-bottom:11px solid transparent;margin-left:5px}
+.vid h3{font-family:var(--display);font-size:25px;font-weight:600;line-height:1.2}
+.vid p{font-family:var(--mono);font-size:16px;color:var(--muted);margin-top:8px}
+
+/* matrices */
+.mats{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-top:36px;flex:1}
+.mat{display:flex;flex-direction:column;align-items:center;gap:18px}
+.mat canvas{width:400px;height:400px;max-width:100%;border:1px solid var(--line);border-radius:4px}
+.mat h3{font-family:var(--display);font-size:34px;font-weight:600}
+.mat p{font-family:var(--mono);font-size:20px;color:var(--muted);text-align:center}
+
+/* gpu = flies */
+.equiv{display:grid;grid-template-columns:auto auto 1fr;gap:50px;align-items:center;margin-top:50px}
+.equiv .gpu{font-size:240px;color:var(--muted);display:flex;flex-direction:column;align-items:center}
+.equiv .gpu span{font-family:var(--mono);font-size:22px;margin-top:10px}
+.equiv .eq{font-family:var(--display);font-size:120px;color:var(--muted)}
+.flygrid{display:grid;grid-template-columns:repeat(7,1fr);gap:18px;justify-items:center}
+.flygrid .ico{font-size:66px;color:var(--brain)}
+
+/* takeaways */
+.take{display:grid;grid-template-columns:repeat(2,1fr);gap:26px 60px;margin-top:40px}
+.take .t{display:grid;grid-template-columns:90px 1fr;gap:26px;align-items:center}
+.take .t .ico{font-size:80px}
+.take .t p{font-size:30px;line-height:1.35}
+
+.anim2{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:26px}
+.apanel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px 12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.apanel .ah{display:flex;justify-content:space-between;align-items:baseline}
+.apanel .ah h3{font-family:var(--display);font-size:30px;font-weight:700}
+.apanel .ah span{font-family:var(--mono);font-size:17px;color:var(--muted)}
+.apanel canvas{width:100%;height:340px;display:block}
+.cmp{display:grid;grid-template-columns:200px 1fr 1fr;margin-top:18px;font-size:21px;line-height:1.35;border-top:1px solid var(--line)}
+.cmp > div{padding:10px 14px;border-bottom:1px solid var(--line)}
+.cmp .k{font-family:var(--mono);font-size:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-left:0}
+.cmp .hl{color:var(--fg)}
+.anat9{flex:1;min-height:0;display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center;margin-top:6px}
+.anat9 svg{width:100%;height:100%;max-height:640px}
+.anat9 [data-k]{transition:opacity .25s}
+.anat9 svg.hl [data-k]{opacity:.15}.anat9 svg.hl [data-k].on{opacity:1}
+.leg9{display:grid;gap:18px;align-content:center}
+.leg9 h3{font-family:var(--display);font-size:26px;font-weight:700;margin-bottom:6px}
+.leg9 h3 small{font-family:var(--mono);font-size:15px;font-weight:400;color:var(--muted);margin-left:8px}
+.leg9 .it{display:grid;grid-template-columns:30px 290px 1fr;gap:12px;align-items:center;font-size:19px;padding:4px 8px;border-radius:6px;cursor:default}
+.leg9 .it:hover,.leg9 .it.on{background:var(--panel)}
+.leg9 .it i{width:30px;height:16px;border-radius:4px}
+.leg9 .it span{font-family:var(--mono);font-size:15px;color:var(--muted)}
+.tl-ref{text-decoration:none;color:var(--fg);transition:border-color .2s,transform .2s}
+.tl-ref:hover{border-color:var(--brain);transform:translateY(-3px)}
+.tl-ref p{font-size:20px;line-height:1.4;color:#c5cfdc}
+.src{font-family:var(--mono);font-size:15px;color:var(--muted);line-height:1.5;columns:2;column-gap:56px;margin:34px 0 0;padding:0}
+.src li{break-inside:avoid;margin:0 0 9px 20px;padding-left:4px}
+.src li::marker{color:var(--brain)}
+.src a{color:var(--vnc);text-decoration:none}
+
+/* controls */
+.controls{display:flex;align-items:center;gap:14px;padding-block:12px;font-family:var(--mono);font-size:13px;color:var(--muted);flex-wrap:wrap}
+.controls button{background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:4px;font:inherit;padding:8px 14px;cursor:pointer}
+.controls button:hover{border-color:var(--muted)}
+.controls button:focus-visible{outline:2px solid var(--brain);outline-offset:2px}
+.progress{flex:1;min-width:80px;height:3px;background:var(--line);border-radius:2px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--brain);width:0;transition:width .3s}
+.count{font-variant-numeric:tabular-nums;min-width:58px;text-align:center}
+.hint{white-space:nowrap}
+.controls button[aria-pressed="true"]{border-color:#ff3b3b;color:#ff6b6b}
+
+@media (max-width:640px){.hint{display:none}}
+</style>
+
+<!-- icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-eye" viewBox="0 0 48 48"><path d="M4 24c6-10 13-14 20-14s14 4 20 14c-6 10-13 14-20 14S10 34 4 24z"/><circle cx="24" cy="24" r="6"/></symbol>
+  <symbol id="i-smell" viewBox="0 0 48 48"><path d="M12 40c-4-5 4-9 0-14s4-9 0-14M24 40c-4-5 4-9 0-14s4-9 0-14M36 40c-4-5 4-9 0-14s4-9 0-14"/></symbol>
+  <symbol id="i-taste" viewBox="0 0 48 48"><path d="M24 6c8 10 12 17 12 23a12 12 0 0 1-24 0c0-6 4-13 12-23z"/></symbol>
+  <symbol id="i-walk" viewBox="0 0 48 48"><circle cx="24" cy="8" r="3"/><path d="M24 12v14M24 26l-9 14M24 26l9 14M24 17l-10 5M24 17l10 5"/></symbol>
+  <symbol id="i-wing" viewBox="0 0 48 48"><path d="M24 30C14 30 6 24 6 12c8 0 14 4 18 12 4-8 10-12 18-12 0 12-8 18-18 18z"/><path d="M24 30v10"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 48 48"><path d="M24 40S6 29 6 17a9 9 0 0 1 18-3 9 9 0 0 1 18 3c0 12-18 23-18 23z"/></symbol>
+  <symbol id="i-fight" viewBox="0 0 48 48"><path d="M8 8l32 32M40 8L8 40M8 8h9M8 8v9M40 8h-9M40 8v9"/></symbol>
+  <symbol id="i-learn" viewBox="0 0 48 48"><path d="M18 36h12M20 42h8M24 6a12 12 0 0 0-7 22v8h14v-8a12 12 0 0 0-7-22z"/></symbol>
+  <symbol id="i-touch" viewBox="0 0 48 48"><path d="M18 26V10a3 3 0 0 1 6 0v12M24 20v-4a3 3 0 0 1 6 0v6M30 20a3 3 0 0 1 6 0v8c0 8-5 14-12 14s-12-5-14-10l-3-8a3 3 0 0 1 5-3l5 5"/></symbol>
+  <symbol id="i-wind" viewBox="0 0 48 48"><path d="M6 18h24a6 6 0 1 0-6-6M6 26h32a6 6 0 1 1-6 6M6 34h14"/></symbol>
+  <symbol id="i-heat" viewBox="0 0 48 48"><path d="M20 28V10a4 4 0 0 1 8 0v18a9 9 0 1 1-8 0z"/><path d="M24 16v16"/></symbol>
+  <symbol id="i-brain" viewBox="0 0 48 48"><path d="M24 9c-4-5-14-3-14 5-5 2-6 10-1 13-2 7 5 12 11 10 2 3 4 3 4 3V9zM24 9c4-5 14-3 14 5 5 2 6 10 1 13 2 7-5 12-11 10-2 3-4 3-4 3"/><path d="M14 20c3 0 5 2 5 5M34 20c-3 0-5 2-5 5"/></symbol>
+  <symbol id="i-map" viewBox="0 0 48 48"><circle cx="10" cy="12" r="4"/><circle cx="38" cy="10" r="4"/><circle cx="24" cy="26" r="4"/><circle cx="12" cy="38" r="4"/><circle cx="38" cy="36" r="4"/><path d="M13 15l8 8M35 13l-8 10M21 29l-6 6M27 29l8 5M14 12h20"/></symbol>
+  <symbol id="i-code" viewBox="0 0 48 48"><path d="M16 14 6 24l10 10M32 14l10 10-10 10M28 10l-8 28"/></symbol>
+  <symbol id="i-fly" viewBox="0 0 48 48"><ellipse cx="24" cy="28" rx="6" ry="11"/><circle cx="24" cy="14" r="4"/><path d="M19 22C10 14 4 18 6 24s10 4 13 1M29 22c9-8 15-4 13 2s-10 4-13 1M18 30l-8 6M30 30l8 6M18 34l-6 8M30 34l6 8"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 48 48"><rect x="12" y="12" width="24" height="24" rx="3"/><rect x="19" y="19" width="10" height="10"/><path d="M18 6v6M24 6v6M30 6v6M18 36v6M24 36v6M30 36v6M6 18h6M6 24h6M6 30h6M36 18h6M36 24h6M36 30h6"/></symbol>
+  <symbol id="i-gpu" viewBox="0 0 48 48"><rect x="4" y="12" width="40" height="22" rx="3"/><circle cx="16" cy="23" r="6"/><circle cx="32" cy="23" r="6"/><path d="M10 34v6M18 34v6M26 34v6M34 34v6"/></symbol>
+  <symbol id="i-loop" viewBox="0 0 48 48"><path d="M38 18a15 15 0 0 0-27-4M10 30a15 15 0 0 0 27 4"/><path d="M38 8v10H28M10 40V30h10"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 48 48"><path d="M24 6 4 16l20 10 20-10zM4 24l20 10 20-10M4 32l20 10 20-10"/></symbol>
+  <symbol id="i-sparse" viewBox="0 0 48 48"><circle cx="8" cy="8" r="2"/><circle cx="24" cy="8" r="2"/><circle cx="40" cy="8" r="2"/><circle cx="8" cy="24" r="2"/><circle cx="24" cy="24" r="2"/><circle cx="40" cy="24" r="2"/><circle cx="8" cy="40" r="2"/><circle cx="24" cy="40" r="2"/><circle cx="40" cy="40" r="2"/><path d="M8 8l16 16M24 24l16 16M40 8 24 24"/></symbol>
+  <symbol id="i-types" viewBox="0 0 48 48"><circle cx="12" cy="12" r="6"/><rect x="30" y="6" width="12" height="12"/><path d="M12 30l7 12H5z"/><path d="M36 30l6 6-6 6-6-6z"/></symbol>
+  <symbol id="i-dna" viewBox="0 0 48 48"><path d="M14 4c0 12 20 16 20 28 0 6-3 10-6 12M34 4c0 12-20 16-20 28 0 6 3 10 6 12M17 12h14M15 20h18M15 30h18M17 38h14"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 48 48"><path d="M27 4 10 28h13l-3 16 18-25H25z"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 48 48"><path d="M24 6 44 40H4z"/><path d="M24 18v10M24 34v1"/></symbol>
+  <symbol id="i-open" viewBox="0 0 48 48"><path d="M18 22v-8a6 6 0 0 1 12 0"/><rect x="10" y="22" width="28" height="20" rx="3"/><path d="M24 30v4"/></symbol>
+  <symbol id="i-slice" viewBox="0 0 48 48"><path d="M8 34 20 40l20-10-12-6zM8 26l12 6 20-10-12-6zM8 18l12 6 20-10-12-6z"/></symbol>
+  <symbol id="i-scope" viewBox="0 0 48 48"><path d="M18 6l8 4-6 13-8-4zM16 23l-2 4M10 42h28M24 42a12 12 0 0 0 4-22M14 34h10"/></symbol>
+  <symbol id="i-cube" viewBox="0 0 48 48"><path d="M24 4 42 14v20L24 44 6 34V14zM6 14l18 10 18-10M24 24v20"/></symbol>
+  <symbol id="i-trace" viewBox="0 0 48 48"><path d="M6 40c8-2 8-12 16-14s8-12 18-20"/><circle cx="6" cy="40" r="3"/><circle cx="22" cy="26" r="3"/><circle cx="40" cy="6" r="3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18"/><path d="M15 25l6 6 12-13"/></symbol>
+  <symbol id="i-paper" viewBox="0 0 48 48"><path d="M12 4h18l8 8v32H12z"/><path d="M30 4v8h8M18 22h14M18 30h14M18 38h8"/></symbol>
+</svg>
+
+<div class="viewport">
+  <div class="stage-wrap" id="wrap">
+    <div class="stage" id="stage">
+
+<!-- ============ OPENING ============ -->
+      <section class="slide title-slide active" data-part="Opening">
+        <canvas id="neurons" aria-hidden="true"></canvas>
+        <div class="scrim"></div>
+        <p class="eyebrow">Connectomics → AI · 2026</p>
+        <h1>Fly brain, <span class="g">machine</span> brain</h1>
+        <p class="lead">What a complete fruit fly wiring diagram tells us about building neural networks.</p>
+        <p class="presenter">Panason Manorost</p>
+      </section>
+
+      <section class="slide" data-part="Opening">
+        <p class="eyebrow">Today’s path</p>
+        <h2>From a brain map to AI design</h2>
+        <div class="flow">
+          <div class="node g"><div class="disc"><svg class="ico"><use href="#i-map"/></svg></div><span class="n">Part 1</span><h3>The map</h3></div>
+          <div class="arrow"></div>
+          <div class="node p"><div class="disc"><svg class="ico"><use href="#i-code"/></svg></div><span class="n">Part 2</span><h3>Open source</h3></div>
+          <div class="arrow"></div>
+          <div class="node b"><div class="disc"><svg class="ico"><use href="#i-fly"/></svg></div><span class="n">Part 3</span><h3>Demos</h3></div>
+          <div class="arrow"></div>
+          <div class="node m"><div class="disc"><svg class="ico"><use href="#i-chip"/></svg></div><span class="n">Part 4</span><h3>Fly vs. AI</h3></div>
+        </div>
+      </section>
+
+<!-- ============ PART 1 ============ -->
+      <section class="slide divider" data-part="Part 1 · The map">
+        <div class="big-ico g"><svg class="ico"><use href="#i-map"/></svg></div>
+        <p class="part g">Part 1</p>
+        <h2>Mapping every neuron of a male fly</h2>
+        <p class="lead mu" style="margin-top:30px">Google Research &amp; HHMI Janelia · Sept 2026</p>
+      </section>
+
+      <section class="slide" data-part="Part 1 · The map">
+        <p class="eyebrow">Why a fly?</p>
+        <h2>A tiny brain that runs a whole life</h2>
+        <div class="cols" style="grid-template-columns:.8fr 1.2fr">
+          <svg viewBox="0 0 460 460" role="img" aria-label="A fly brain is smaller than a poppy seed">
+            <circle cx="230" cy="210" r="170" fill="#ff5fb8" fill-opacity=".08" stroke="#ff5fb8" stroke-width="2" stroke-dasharray="6 8"/>
+            <ellipse cx="230" cy="220" rx="110" ry="70" fill="#5fe39a" fill-opacity=".22" stroke="#5fe39a" stroke-width="2.5"/>
+            <ellipse cx="135" cy="220" rx="30" ry="50" fill="#b18cff" fill-opacity=".25" stroke="#b18cff" stroke-width="2"/>
+            <ellipse cx="325" cy="220" rx="30" ry="50" fill="#b18cff" fill-opacity=".25" stroke="#b18cff" stroke-width="2"/>
+            <text x="230" y="226" text-anchor="middle" fill="#e9eef5" font-size="22">fly brain</text>
+            <text x="230" y="420" text-anchor="middle" fill="#ff5fb8" font-size="22">poppy seed (outline)</text>
+          </svg>
+          <div class="tiles t4" style="margin-top:0;gap:18px">
+            <div class="tile" style="align-items:center;padding:22px"><svg class="ico p"><use href="#i-eye"/></svg><h3 style="font-size:26px">See</h3></div>
+            <div class="tile" style="align-items:center;padding:22px"><svg class="ico g"><use href="#i-smell"/></svg><h3 style="font-size:26px">Smell</h3></div>
+            <div class="tile" style="align-items:center;padding:22px"><svg class="ico g"><use href="#i-taste"/></svg><h3 style="font-size:26px">Taste</h3></div>
+            <div class="tile" style="align-items:center;padding:22px"><svg class="ico b"><use href="#i-walk"/></svg><h3 style="font-size:26px">Walk</h3></div>
+            <div class="tile" style="align-items:center;padding:22px"><svg class="ico b"><use href="#i-wing"/></svg><h3 style="font-size:26px">Fly</h3></div>
+            <div class="tile" style="align-items:center;padding:22px"><svg class="ico m"><use href="#i-heart"/></svg><h3 style="font-size:26px">Court</h3></div>
+            <div class="tile" style="align-items:center;padding:22px"><svg class="ico w"><use href="#i-fight"/></svg><h3 style="font-size:26px">Fight</h3></div>
+            <div class="tile" style="align-items:center;padding:22px"><svg class="ico g"><use href="#i-learn"/></svg><h3 style="font-size:26px">Learn</h3></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-part="Part 1 · The map">
+        <p class="eyebrow">The result</p>
+        <h2>The male nervous system, end to end</h2>
+        <div class="bignums">
+          <div class="num"><div class="v g">166,000+</div><div class="k">neurons</div></div>
+          <div class="num"><div class="v p">125 M</div><div class="k">synaptic connections</div></div>
+          <div class="num"><div class="v b">~10 yrs</div><div class="k">Google × Janelia partnership</div></div>
+        </div>
+        <div class="dots" id="neuron-dots" aria-label="Each dot is 1,000 neurons; 166 dots"></div>
+        <p class="note" style="margin-top:14px">● = 1,000 neurons · the largest brain map by neuron count to date</p>
+      </section>
+
+      <section class="slide" data-part="Part 1 · The map">
+        <p class="eyebrow">The road here · circle area = neurons mapped</p>
+        <h2>Each map built on the one before</h2>
+        <div class="fig">
+          <svg viewBox="0 0 1380 520" role="img" aria-label="Timeline: 2019 first automated reconstruction; 2020 hemibrain 25,000 neurons; 2024 FlyWire about 140,000 neurons; 2026 male CNS 166,000 neurons">
+            <line x1="40" y1="300" x2="1340" y2="300" stroke="#243042" stroke-width="3"/>
+            <circle cx="140" cy="300" r="14" fill="#0c1016" stroke="#8d9bb0" stroke-width="3"/>
+            <text x="140" y="430" text-anchor="middle" fill="#8d9bb0" font-size="30" font-weight="600">2019</text>
+            <text x="140" y="468" text-anchor="middle" fill="#8d9bb0" font-size="20">first AI tracing</text>
+            <circle cx="420" cy="300" r="46.5" fill="#8d9bb0" fill-opacity=".25" stroke="#8d9bb0" stroke-width="2.5"/>
+            <text x="420" y="220" text-anchor="middle" fill="#e9eef5" font-size="26">25 k</text>
+            <text x="420" y="430" text-anchor="middle" fill="#8d9bb0" font-size="30" font-weight="600">2020</text>
+            <text x="420" y="468" text-anchor="middle" fill="#8d9bb0" font-size="20">hemibrain · ½ brain</text>
+            <circle cx="790" cy="300" r="110" fill="#ff5fb8" fill-opacity=".2" stroke="#ff5fb8" stroke-width="2.5"/>
+            <text x="790" y="306" text-anchor="middle" fill="#e9eef5" font-size="28">~140 k</text>
+            <text x="790" y="458" text-anchor="middle" fill="#ff5fb8" font-size="30" font-weight="600">2024</text>
+            <text x="790" y="494" text-anchor="middle" fill="#8d9bb0" font-size="20">FlyWire · female brain</text>
+            <circle cx="1180" cy="300" r="120" fill="#5fe39a" fill-opacity=".22" stroke="#5fe39a" stroke-width="3"/>
+            <text x="1180" y="306" text-anchor="middle" fill="#e9eef5" font-size="30" font-weight="600">166 k</text>
+            <text x="1180" y="458" text-anchor="middle" fill="#5fe39a" font-size="30" font-weight="600">2026</text>
+            <text x="1180" y="494" text-anchor="middle" fill="#8d9bb0" font-size="20">male brain + nerve cord</text>
+          </svg>
+        </div>
+        <p class="cite">Sources: Li et al., bioRxiv 2019 (automated tracing, FAFB) · Scheffer et al., eLife 2020 (hemibrain) · Dorkenwald et al., Nature 2024 (FlyWire) · Google Research &amp; HHMI Janelia, 2026 (male CNS v1.0)</p>
+      </section>
+
+      <section class="slide" data-part="Part 1 · The map">
+        <p class="eyebrow">Scale in six years</p>
+        <h2>Half a brain → a whole nervous system</h2>
+        <div class="bars">
+          <div class="bar-group">
+            <h3>Neurons</h3>
+            <div class="bar-row"><span class="lbl">Hemibrain 2020</span><div class="track"><div class="fill old" data-w="15.1">25 k</div></div></div>
+            <div class="bar-row"><span class="lbl">Male CNS 2026</span><div class="track"><div class="fill new" data-w="100">166 k</div></div></div>
+          </div>
+          <div class="bar-group">
+            <h3>Synaptic connections</h3>
+            <div class="bar-row"><span class="lbl">Hemibrain 2020</span><div class="track"><div class="fill old" data-w="16.8">21 M</div></div></div>
+            <div class="bar-row"><span class="lbl">Male CNS 2026</span><div class="track"><div class="fill new" data-w="100">125 M</div></div></div>
+          </div>
+        </div>
+        <p class="ratio"><span class="g">6.6×</span> neurons · <span class="g">6×</span> connections</p>
+        <p class="cite">Sources: Scheffer et al., eLife 2020 (hemibrain) · Januszewski &amp; Jain, Google Research Blog, Sep 2026, and HHMI Janelia FlyEM (male CNS v1.0)</p>
+      </section>
+
+      <section class="slide" data-part="Part 1 · The map">
+        <p class="eyebrow">How a connectome is made</p>
+        <h2>Slice → image → stitch → trace → check</h2>
+        <div class="flow" style="grid-template-columns:1fr 50px 1fr 50px 1fr 50px 1fr 50px 1fr;margin-top:80px">
+          <div class="node mu"><div class="disc" style="width:170px;height:170px;font-size:80px"><svg class="ico"><use href="#i-slice"/></svg></div><h3>Slice</h3><span class="n">millions of thin sections</span></div>
+          <div class="arrow"></div>
+          <div class="node b"><div class="disc" style="width:170px;height:170px;font-size:80px"><svg class="ico"><use href="#i-scope"/></svg></div><h3>Image</h3><span class="n">electron microscopy</span></div>
+          <div class="arrow"></div>
+          <div class="node p"><div class="disc" style="width:170px;height:170px;font-size:80px"><svg class="ico"><use href="#i-cube"/></svg></div><h3>Stitch</h3><span class="n">one 3D volume</span></div>
+          <div class="arrow"></div>
+          <div class="node g"><div class="disc" style="width:170px;height:170px;font-size:80px"><svg class="ico"><use href="#i-trace"/></svg></div><h3>Trace</h3><span class="n">AI · PATHFINDER</span></div>
+          <div class="arrow"></div>
+          <div class="node m"><div class="disc" style="width:170px;height:170px;font-size:80px"><svg class="ico"><use href="#i-check"/></svg></div><h3>Check</h3><span class="n">human proofreaders</span></div>
+        </div>
+        <p class="note" style="margin-top:auto">New: training PATHFINDER on synthetic neurons made tracing faster and more accurate.</p>
+      </section>
+
+      <section class="slide" data-part="Part 1 · The map">
+        <p class="eyebrow">What the map covers</p>
+        <h2>Three regions, one system</h2>
+        <div class="anat9">
+          <svg class="anat" viewBox="0 0 860 620" role="img" aria-label="Schematic fly nervous system: two optic lobes with lamina, medulla, lobula and lobula plate; central brain with mushroom bodies, central complex, lateral horns, antennal lobes and gnathal ganglia; neck connective; ventral nerve cord with leg, wing, haltere and abdominal neuropils">
+            <defs>
+              <filter id="glow9" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              <path id="flow9" d="M92 210 L165 210 L222 222 L300 150 L362 122 L395 215 L430 228 L430 318 L430 372 L430 420 L405 440 L404 494 L405 548"/>
+            </defs>
+            <!-- shells -->
+            <ellipse data-k="cb" cx="430" cy="210" rx="172" ry="132" fill="#5fe39a" fill-opacity=".07" stroke="#5fe39a" stroke-width="2"/>
+            <g data-k="ol">
+              <ellipse cx="212" cy="246" rx="20" ry="54" fill="#6f55c0" fill-opacity=".75" stroke="#b18cff" stroke-width="1.5"/>
+              <ellipse cx="648" cy="246" rx="20" ry="54" fill="#6f55c0" fill-opacity=".75" stroke="#b18cff" stroke-width="1.5"/>
+              <ellipse cx="165" cy="210" rx="56" ry="106" fill="#b18cff" fill-opacity=".55" stroke="#b18cff" stroke-width="2"/>
+              <ellipse cx="695" cy="210" rx="56" ry="106" fill="#b18cff" fill-opacity=".55" stroke="#b18cff" stroke-width="2"/>
+              <ellipse cx="232" cy="214" rx="28" ry="64" fill="#8c6ae0" fill-opacity=".8" stroke="#b18cff" stroke-width="1.5"/>
+              <ellipse cx="628" cy="214" rx="28" ry="64" fill="#8c6ae0" fill-opacity=".8" stroke="#b18cff" stroke-width="1.5"/>
+              <path d="M104 104 Q 40 210 104 316 Q 82 210 104 104 Z" fill="#d9c6ff" fill-opacity=".8" stroke="#d9c6ff" stroke-width="1.5"/>
+              <path d="M756 104 Q 820 210 756 316 Q 778 210 756 104 Z" fill="#d9c6ff" fill-opacity=".8" stroke="#d9c6ff" stroke-width="1.5"/>
+              <g stroke="#e9eef5" stroke-opacity=".18" stroke-width="1">
+                <path d="M114 150 H140 M110 190 H140 M110 230 H140 M114 270 H140"/><path d="M746 150 H720 M750 190 H720 M750 230 H720 M746 270 H720"/>
+              </g>
+            </g>
+            <!-- central brain neuropils -->
+            <g data-k="lh"><ellipse cx="300" cy="150" rx="27" ry="21" fill="#ff8a5c" fill-opacity=".85"/><ellipse cx="560" cy="150" rx="27" ry="21" fill="#ff8a5c" fill-opacity=".85"/></g>
+            <g data-k="mb" fill="none" stroke="#ffb454" stroke-linecap="round">
+              <circle cx="362" cy="118" r="21" fill="#ffb454" fill-opacity=".85" stroke="none"/><circle cx="498" cy="118" r="21" fill="#ffb454" fill-opacity=".85" stroke="none"/>
+              <path d="M366 136 L395 215 M395 215 L390 160 M395 215 L424 215" stroke-width="9"/>
+              <path d="M494 136 L465 215 M465 215 L470 160 M465 215 L436 215" stroke-width="9"/>
+            </g>
+            <g data-k="cx">
+              <path d="M384 150 Q 430 130 476 150" fill="none" stroke="#3fd0c9" stroke-width="7" stroke-linecap="round"/>
+              <path d="M392 190 A 38 22 0 0 1 468 190 Z" fill="#3fd0c9" fill-opacity=".85"/>
+              <circle cx="430" cy="236" r="13" fill="none" stroke="#3fd0c9" stroke-width="6"/>
+            </g>
+            <g data-k="al"><circle cx="394" cy="282" r="24" fill="#ff5fb8" fill-opacity=".8"/><circle cx="466" cy="282" r="24" fill="#ff5fb8" fill-opacity=".8"/>
+              <g fill="#0c1016" fill-opacity=".35"><circle cx="386" cy="276" r="5"/><circle cx="400" cy="290" r="5"/><circle cx="398" cy="272" r="4"/><circle cx="474" cy="276" r="5"/><circle cx="460" cy="290" r="5"/><circle cx="462" cy="272" r="4"/></g></g>
+            <g data-k="sez"><ellipse cx="430" cy="320" rx="54" ry="20" fill="#a6f0c6" fill-opacity=".75"/></g>
+            <!-- neck + VNC -->
+            <g data-k="nk"><rect x="416" y="340" width="28" height="64" rx="8" fill="#56b4ff" fill-opacity=".18" stroke="#56b4ff" stroke-width="1.5" stroke-dasharray="4 4"/></g>
+            <path data-k="vnc" d="M430 402 C 360 404 352 450 356 500 C 360 560 400 606 430 612 C 460 606 500 560 504 500 C 508 450 500 404 430 402 Z" fill="#56b4ff" fill-opacity=".07" stroke="#56b4ff" stroke-width="2"/>
+            <g data-k="leg" fill="#56b4ff" fill-opacity=".8">
+              <ellipse cx="405" cy="440" rx="22" ry="22"/><ellipse cx="455" cy="440" rx="22" ry="22"/>
+              <ellipse cx="404" cy="494" rx="23" ry="23"/><ellipse cx="456" cy="494" rx="23" ry="23"/>
+              <ellipse cx="406" cy="546" rx="21" ry="21"/><ellipse cx="454" cy="546" rx="21" ry="21"/>
+            </g>
+            <g data-k="wing"><ellipse cx="430" cy="470" rx="44" ry="11" fill="#c9e7ff" fill-opacity=".85"/><ellipse cx="430" cy="520" rx="28" ry="8" fill="#8fcbff" fill-opacity=".9"/></g>
+            <g data-k="abd"><ellipse cx="430" cy="590" rx="18" ry="13" fill="#2f86d0" fill-opacity=".95"/></g>
+            <!-- leg nerves -->
+            <g stroke="#56b4ff" stroke-opacity=".5" stroke-width="2" fill="none"><path d="M383 440 L340 432 M477 440 L520 432 M381 494 L336 494 M479 494 L524 494 M385 546 L340 560 M475 546 L520 560"/></g>
+            <!-- signal flowing from eye to leg -->
+            <circle r="7" fill="#e9eef5" filter="url(#glow9)"><animateMotion dur="4.5s" repeatCount="indefinite"><mpath href="#flow9"/></animateMotion></circle>
+            <!-- region labels -->
+            <g font-size="20" font-weight="600">
+              <text x="165" y="70" text-anchor="middle" fill="#b18cff">Optic lobe</text><text x="695" y="70" text-anchor="middle" fill="#b18cff">Optic lobe</text>
+              <text x="430" y="62" text-anchor="middle" fill="#5fe39a">Central brain</text>
+              <text x="530" y="380" fill="#56b4ff" font-size="17" font-weight="400">neck connective</text>
+              <text x="530" y="520" fill="#56b4ff">Ventral nerve cord</text>
+              <text x="530" y="544" fill="#8d9bb0" font-size="15" font-weight="400">(the fly’s “spinal cord”)</text>
+            </g>
+          </svg>
+          <div class="leg9">
+            <div class="grp"><h3 class="g">Central brain <small>decide · learn · navigate</small></h3>
+              <div class="it" data-k="mb"><i style="background:#ffb454"></i><b>Mushroom bodies</b><span>learning &amp; memory</span></div>
+              <div class="it" data-k="cx"><i style="background:#3fd0c9"></i><b>Central complex</b><span>navigation, steering</span></div>
+              <div class="it" data-k="lh"><i style="background:#ff8a5c"></i><b>Lateral horns</b><span>innate smell responses</span></div>
+              <div class="it" data-k="al"><i style="background:#ff5fb8"></i><b>Antennal lobes</b><span>smell input</span></div>
+              <div class="it" data-k="sez"><i style="background:#a6f0c6"></i><b>Gnathal ganglia</b><span>taste &amp; feeding</span></div></div>
+            <div class="grp"><h3 class="p">Optic lobes <small>vision · about half of all neurons</small></h3>
+              <div class="it" data-k="ol"><i style="background:linear-gradient(90deg,#d9c6ff 25%,#b18cff 25% 50%,#8c6ae0 50% 75%,#6f55c0 75%)"></i><b>Lamina → medulla → lobula</b><span>pixels → motion → objects</span></div></div>
+            <div class="grp"><h3 class="b">Ventral nerve cord <small>movement</small></h3>
+              <div class="it" data-k="leg"><i style="background:#56b4ff"></i><b>Leg neuromeres T1–T3</b><span>walking</span></div>
+              <div class="it" data-k="wing"><i style="background:#c9e7ff"></i><b>Wing &amp; haltere neuropils</b><span>flight, balance</span></div>
+              <div class="it" data-k="abd"><i style="background:#2f86d0"></i><b>Abdominal ganglion</b><span>abdomen, mating</span></div></div>
+            <p class="note">Schematic, not to scale: brain seen from the front, nerve cord from above. Dot = a signal travelling from eye to leg.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-part="Part 1 · The map">
+        <p class="eyebrow">Male vs. female · neuron AOTU008</p>
+        <h2>Same neuron, different wiring</h2>
+        <div class="fig">
+          <svg viewBox="0 0 1300 560" role="img" aria-label="Schematic: female AOTU008 has four branches; male version has the same plus two extra projections">
+            <g fill="none" stroke-linecap="round" stroke-width="6">
+              <g transform="translate(40 0)" stroke="#ff5fb8">
+                <path d="M300 500 L300 300 L220 200 L170 120"/><path d="M300 300 L380 210 L430 130"/>
+                <path d="M220 200 L250 110"/><path d="M380 210 L360 110"/>
+                <circle cx="300" cy="500" r="14" fill="#ff5fb8"/>
+              </g>
+              <g transform="translate(660 0)">
+                <g stroke="#5fe39a">
+                  <path d="M300 500 L300 300 L220 200 L170 120"/><path d="M300 300 L380 210 L430 130"/>
+                  <path d="M220 200 L250 110"/><path d="M380 210 L360 110"/>
+                  <circle cx="300" cy="500" r="14" fill="#5fe39a"/>
+                </g>
+                <g stroke="#ffb454" stroke-width="8">
+                  <path d="M300 400 L170 350 L80 320"/><path d="M300 360 L450 320 L540 270"/>
+                </g>
+              </g>
+            </g>
+            <text x="340" y="545" text-anchor="middle" fill="#ff5fb8" font-size="28" font-weight="600">Female</text>
+            <text x="960" y="545" text-anchor="middle" fill="#5fe39a" font-size="28" font-weight="600">Male</text>
+            <text x="1210" y="250" text-anchor="middle" fill="#ffb454" font-size="22">+2 projections</text>
+            <text x="650" y="60" text-anchor="middle" fill="#8d9bb0" font-size="20">schematic · links to courtship &amp; aggression research</text>
+          </svg>
+        </div>
+      </section>
+
+      <section class="slide" data-part="Part 1 · The map">
+        <p class="eyebrow">Published alongside · Sept 2026</p>
+        <h2>Three companion papers</h2>
+        <div class="tiles t3" style="margin-top:40px">
+          <a class="tile tl-ref" href="https://www.cell.com/cell/fulltext/S0092-8674(26)00941-4" target="_blank" rel="noopener"><svg class="ico p" style="font-size:96px"><use href="#i-eye"/></svg><h3>Vision</h3><p>The organization of visual pathways in the <i>Drosophila</i> brain</p><span class="tag p">Cell, 2026</span></a>
+          <a class="tile tl-ref" href="https://www.sciencedirect.com/science/article/pii/S0092867426009438" target="_blank" rel="noopener"><svg class="ico g" style="font-size:96px"><use href="#i-taste"/></svg><h3>Taste</h3><p>The complete gustatory connectome of adult <i>Drosophila</i> reveals how taste guides feeding, foraging, and social behavior</p><span class="tag g">Cell, 2026</span></a>
+          <a class="tile tl-ref" href="https://www.cell.com/current-biology/fulltext/S0960-9822(26)01023-7" target="_blank" rel="noopener"><svg class="ico m" style="font-size:96px"><use href="#i-heart"/></svg><h3>Social behaviour</h3><p>Networks of sexually dimorphic neurons that regulate social behaviors in <i>Drosophila</i></p><span class="tag m">Current Biology, 2026</span></a>
+        </div>
+        <div class="chips" style="margin-top:34px">
+          <span class="chip on">HHMI Janelia (lead)</span><span class="chip on">Google Research</span><span class="chip">MRC LMB</span><span class="chip">Univ. of Cambridge</span><span class="chip">Columbia</span><span class="chip">Harvard</span>
+        </div>
+        <p class="cite">Main paper: Sexual dimorphism in the complete <i>Drosophila</i> male central nervous system connectome. Cell, 2026 · Click a card to open the paper.</p>
+      </section>
+
+<!-- ============ PART 2 ============ -->
+      <section class="slide divider" data-part="Part 2 · Open source">
+        <div class="big-ico p"><svg class="ico"><use href="#i-code"/></svg></div>
+        <p class="part p">Part 2</p>
+        <h2>The fly brain is open source</h2>
+        <p class="lead mu" style="margin-top:30px">Download a brain. Run it.</p>
+      </section>
+
+      <section class="slide" data-part="Part 2 · Open source">
+        <p class="eyebrow">The open stack · each layer builds on the one below</p>
+        <h2>Everything you need to build a virtual fly</h2>
+        <div class="fig">
+          <svg viewBox="0 0 1380 560" role="img" aria-label="Layered stack: wiring data at the bottom, then brain model, body, senses, and viewer on top">
+            <g font-size="26">
+              <rect x="100" y="20" width="1180" height="88" rx="8" fill="#56b4ff" fill-opacity=".12" stroke="#56b4ff"/>
+              <text x="140" y="74" fill="#56b4ff" font-weight="600">VIEW</text><text x="420" y="74" fill="#e9eef5">Neuroglancer</text><text x="1240" y="74" text-anchor="end" fill="#8d9bb0" font-size="20">Google</text>
+              <rect x="100" y="126" width="1180" height="88" rx="8" fill="#ff5fb8" fill-opacity=".12" stroke="#ff5fb8"/>
+              <text x="140" y="180" fill="#ff5fb8" font-weight="600">EYES</text><text x="420" y="180" fill="#e9eef5">flyvis</text><text x="1240" y="180" text-anchor="end" fill="#8d9bb0" font-size="20">Lappalainen et al. 2024</text>
+              <rect x="100" y="232" width="1180" height="88" rx="8" fill="#b18cff" fill-opacity=".12" stroke="#b18cff"/>
+              <text x="140" y="286" fill="#b18cff" font-weight="600">BODY</text><text x="420" y="286" fill="#e9eef5">flybody · NeuroMechFly v2</text><text x="1240" y="286" text-anchor="end" fill="#8d9bb0" font-size="20">MuJoCo physics</text>
+              <rect x="100" y="338" width="1180" height="88" rx="8" fill="#ffb454" fill-opacity=".12" stroke="#ffb454"/>
+              <text x="140" y="392" fill="#ffb454" font-weight="600">BRAIN</text><text x="420" y="392" fill="#e9eef5">Spiking LIF model</text><text x="1240" y="392" text-anchor="end" fill="#8d9bb0" font-size="20">Shiu et al. 2024</text>
+              <rect x="100" y="444" width="1180" height="100" rx="8" fill="#5fe39a" fill-opacity=".18" stroke="#5fe39a" stroke-width="2"/>
+              <text x="140" y="504" fill="#5fe39a" font-weight="600">WIRING</text><text x="420" y="504" fill="#e9eef5">FlyWire v783 · Male CNS v1.0</text><text x="1240" y="504" text-anchor="end" fill="#8d9bb0" font-size="20">connectomes · open data</text>
+            </g>
+            <path d="M50 530 V40" stroke="#8d9bb0" stroke-width="2"/><path d="M40 56 L50 36 L60 56" fill="none" stroke="#8d9bb0" stroke-width="2"/>
+          </svg>
+        </div>
+      </section>
+
+      <section class="slide" data-part="Part 2 · Open source">
+        <p class="eyebrow">Repository 1 · Eon Systems</p>
+        <h2>One brain, six simulators</h2>
+        <div class="repo-id">github.com/eonsystemspbc/fly-brain</div>
+        <div class="chips"><span class="chip on">FlyWire v783</span><span class="chip">LIF neurons</span><span class="chip">GPL-2.0</span><span class="chip">~670 ★</span><span class="chip">Linux + NVIDIA GPU</span></div>
+        <div class="fig">
+          <svg viewBox="0 0 1380 420" role="img" aria-label="Data flow: connectome file feeds an LIF brain model, run on six simulators, producing spike rates">
+            <g font-size="22">
+              <rect x="20" y="150" width="240" height="120" rx="10" fill="#5fe39a" fill-opacity=".14" stroke="#5fe39a"/>
+              <text x="140" y="203" text-anchor="middle" fill="#e9eef5" font-size="26" font-weight="600">Connectome</text>
+              <text x="140" y="236" text-anchor="middle" fill="#8d9bb0" font-size="18">97 MB parquet</text>
+              <path d="M260 210 H350" stroke="#8d9bb0" stroke-width="2"/><path d="M340 202 L352 210 L340 218" fill="none" stroke="#8d9bb0" stroke-width="2"/>
+              <rect x="352" y="150" width="240" height="120" rx="10" fill="#ffb454" fill-opacity=".14" stroke="#ffb454"/>
+              <text x="472" y="203" text-anchor="middle" fill="#e9eef5" font-size="26" font-weight="600">LIF brain</text>
+              <text x="472" y="236" text-anchor="middle" fill="#8d9bb0" font-size="18">~138 k neurons</text>
+              <g stroke="#8d9bb0" stroke-width="2" fill="none">
+                <path d="M592 210 C 660 210 650 40 730 40"/><path d="M592 210 C 660 210 650 110 730 110"/><path d="M592 210 C 660 210 650 180 730 180"/>
+                <path d="M592 210 C 660 210 650 250 730 250"/><path d="M592 210 C 660 210 650 320 730 320"/><path d="M592 210 C 660 210 650 390 730 390"/>
+              </g>
+              <g fill="#121823" stroke="#243042">
+                <rect x="730" y="14" width="300" height="52" rx="26"/><rect x="730" y="84" width="300" height="52" rx="26"/><rect x="730" y="154" width="300" height="52" rx="26"/>
+                <rect x="730" y="224" width="300" height="52" rx="26"/><rect x="730" y="294" width="300" height="52" rx="26"/><rect x="730" y="364" width="300" height="52" rx="26"/>
+              </g>
+              <g fill="#e9eef5" text-anchor="middle">
+                <text x="880" y="48">Brian2</text><text x="880" y="118">Brian2CUDA</text><text x="880" y="188">PyTorch</text>
+                <text x="880" y="258">NEST GPU</text><text x="880" y="328">GeNN</text><text x="880" y="398">Brian2GeNN</text>
+              </g>
+              <g stroke="#8d9bb0" stroke-width="2" fill="none">
+                <path d="M1030 40 C 1110 40 1100 210 1150 210"/><path d="M1030 390 C 1110 390 1100 210 1150 210"/><path d="M1030 210 H1150"/>
+              </g>
+              <rect x="1150" y="150" width="210" height="120" rx="10" fill="#56b4ff" fill-opacity=".14" stroke="#56b4ff"/>
+              <text x="1255" y="203" text-anchor="middle" fill="#e9eef5" font-size="26" font-weight="600">Spikes</text>
+              <text x="1255" y="236" text-anchor="middle" fill="#8d9bb0" font-size="18">firing rates</text>
+            </g>
+          </svg>
+        </div>
+      </section>
+
+      <section class="slide" data-part="Part 2 · Open source">
+        <p class="eyebrow">Inside the model</p>
+        <h2>How wiring becomes a simulation</h2>
+        <div class="cols" style="gap:60px">
+          <svg viewBox="0 0 640 440" role="img" aria-label="Two neurons joined by five synapses: weight equals synapse count times sign">
+            <circle cx="110" cy="200" r="50" fill="#5fe39a" fill-opacity=".2" stroke="#5fe39a" stroke-width="3"/>
+            <circle cx="530" cy="200" r="50" fill="#56b4ff" fill-opacity=".2" stroke="#56b4ff" stroke-width="3"/>
+            <text x="110" y="208" text-anchor="middle" fill="#e9eef5" font-size="22">A</text>
+            <text x="530" y="208" text-anchor="middle" fill="#e9eef5" font-size="22">B</text>
+            <g stroke="#8d9bb0" stroke-width="2" fill="none">
+              <path d="M160 200 C 260 120 380 120 480 190"/><path d="M160 200 C 260 280 380 280 480 210"/>
+            </g>
+            <g fill="#ffb454"><circle cx="250" cy="148" r="9"/><circle cx="330" cy="135" r="9"/><circle cx="410" cy="152" r="9"/><circle cx="290" cy="255" r="9"/><circle cx="380" cy="258" r="9"/></g>
+            <text x="320" y="60" text-anchor="middle" fill="#ffb454" font-size="24">5 synapses</text>
+            <rect x="80" y="330" width="480" height="80" rx="10" fill="#121823" stroke="#243042"/>
+            <text x="320" y="380" text-anchor="middle" fill="#e9eef5" font-size="26">weight = <tspan fill="#ffb454">5</tspan> × <tspan fill="#5fe39a">(+)</tspan> × k</text>
+          </svg>
+          <svg viewBox="0 0 640 440" role="img" aria-label="Leaky integrate-and-fire voltage trace: voltage rises, hits threshold, spikes, resets">
+            <text x="20" y="40" fill="#8d9bb0" font-size="22">voltage of one LIF neuron</text>
+            <line x1="40" y1="150" x2="620" y2="150" stroke="#ff5fb8" stroke-width="2" stroke-dasharray="8 8"/>
+            <text x="620" y="138" text-anchor="end" fill="#ff5fb8" font-size="20">threshold</text>
+            <path d="M40 330 Q120 200 180 152 L180 70 L186 340 Q260 210 330 152 L330 70 L336 340 Q400 260 450 230 Q500 220 520 152 L520 70 L526 340 Q570 300 620 280" fill="none" stroke="#5fe39a" stroke-width="4"/>
+            <g fill="#e9eef5" font-size="20"><text x="180" y="60" text-anchor="middle">spike</text><text x="330" y="60" text-anchor="middle">spike</text><text x="520" y="60" text-anchor="middle">spike</text></g>
+            <line x1="40" y1="370" x2="620" y2="370" stroke="#243042" stroke-width="2"/>
+            <text x="330" y="410" text-anchor="middle" fill="#8d9bb0" font-size="20">charge → leak → fire → reset</text>
+          </svg>
+        </div>
+        <p class="note">Nothing is trained: the connectome is the network. Shiu et al. report 91% accuracy against real-fly experiments.</p>
+      </section>
+
+      <section class="slide" data-part="Part 2 · Open source">
+        <p class="eyebrow">Repository 2 · Lulzx</p>
+        <h2>A whole fly in your browser</h2>
+        <div class="repo-id">github.com/Lulzx/fly-brain</div>
+        <div class="chips"><span class="chip on">Male CNS v1.0</span><span class="chip">WebAssembly</span><span class="chip">MuJoCo body</span><span class="chip">flyvis eyes</span><span class="chip">MIT</span></div>
+        <div class="cols" style="grid-template-columns:1.25fr .75fr;margin-top:10px">
+          <svg viewBox="0 0 760 470" role="img" aria-label="Six senses feed a 165,122-neuron brain, which drives walking, turning, grooming and flight">
+            <g font-size="18" fill="#8d9bb0" text-anchor="middle">
+              <g stroke="#243042" stroke-width="2"><path d="M110 70 L300 235"/><path d="M70 235 H300"/><path d="M110 400 L300 235"/><path d="M230 30 L330 200"/><path d="M230 440 L330 270"/><path d="M50 150 L300 225"/></g>
+            </g>
+            <g font-size="58">
+              <svg x="80" y="40" width="60" height="60" class="ico p"><use href="#i-eye"/></svg>
+              <svg x="200" y="0" width="60" height="60" class="ico g"><use href="#i-taste"/></svg>
+              <svg x="20" y="120" width="60" height="60" class="ico g"><use href="#i-smell"/></svg>
+              <svg x="40" y="205" width="60" height="60" class="ico b"><use href="#i-touch"/></svg>
+              <svg x="80" y="370" width="60" height="60" class="ico b"><use href="#i-wind"/></svg>
+              <svg x="200" y="410" width="60" height="60" class="ico w"><use href="#i-heat"/></svg>
+            </g>
+            <circle cx="400" cy="235" r="110" fill="#5fe39a" fill-opacity=".15" stroke="#5fe39a" stroke-width="3"/>
+            <text x="400" y="230" text-anchor="middle" fill="#e9eef5" font-size="32" font-weight="600">165,122</text>
+            <text x="400" y="262" text-anchor="middle" fill="#8d9bb0" font-size="20">neurons</text>
+            <path d="M510 235 H600" stroke="#8d9bb0" stroke-width="2"/><path d="M590 227 L602 235 L590 243" fill="none" stroke="#8d9bb0" stroke-width="2"/>
+            <g font-size="22" fill="#e9eef5"><text x="615" y="160">walk</text><text x="615" y="210">turn</text><text x="615" y="260">groom</text><text x="615" y="310">fly</text></g>
+          </svg>
+          <div style="display:flex;flex-direction:column;gap:22px">
+            <div class="num" style="padding-top:18px"><div class="v b" style="font-size:90px">10.5 M</div><div class="k">connections, in WebAssembly</div></div>
+            <a class="vid" href="#arena" style="grid-template-columns:110px 1fr">
+              <div class="thumb"><div class="play"></div></div>
+              <div><h3>Open the live arena</h3><p>in Fly Brain Lab</p></div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-part="Part 2 · Open source">
+        <p class="eyebrow">Side by side</p>
+        <h2>Benchmark vs. playground</h2>
+        <div class="vs">
+          <div class="col">
+            <h3 class="p">eonsystemspbc/fly-brain</h3>
+            <div class="r"><svg class="ico"><use href="#i-map"/></svg><span>FlyWire v783 · female brain</span></div>
+            <div class="r"><svg class="ico"><use href="#i-brain"/></svg><span>~138,000 neurons</span></div>
+            <div class="r"><svg class="ico"><use href="#i-fly"/></svg><span class="mu">No body in public repo</span></div>
+            <div class="r"><svg class="ico"><use href="#i-gpu"/></svg><span>Linux + NVIDIA GPU</span></div>
+            <div class="r"><svg class="ico"><use href="#i-open"/></svg><span>GPL-2.0</span></div>
+          </div>
+          <div class="col">
+            <h3 class="b">Lulzx/fly-brain</h3>
+            <div class="r"><svg class="ico"><use href="#i-map"/></svg><span>Male CNS v1.0 · brain + nerve cord</span></div>
+            <div class="r"><svg class="ico"><use href="#i-brain"/></svg><span>165,122 neurons</span></div>
+            <div class="r"><svg class="ico"><use href="#i-fly"/></svg><span>MuJoCo body + flyvis eyes</span></div>
+            <div class="r"><svg class="ico"><use href="#i-code"/></svg><span>Any desktop browser</span></div>
+            <div class="r"><svg class="ico"><use href="#i-open"/></svg><span>MIT</span></div>
+          </div>
+        </div>
+      </section>
+
+<!-- ============ PART 3 ============ -->
+      <section class="slide divider" data-part="Part 3 · Demonstrations">
+        <div class="big-ico b"><svg class="ico"><use href="#i-fly"/></svg></div>
+        <p class="part b">Part 3</p>
+        <h2>Virtual flies in action</h2>
+        <p class="lead mu" style="margin-top:30px">Predict · walk · loop · accelerate</p>
+      </section>
+
+      <section class="slide" data-part="Part 3 · Demonstrations">
+        <p class="eyebrow">Case 1 · Shiu et al., Nature 2024</p>
+        <h2>The model predicts real behaviour</h2>
+        <div class="cols" style="grid-template-columns:1.3fr .7fr">
+          <svg viewBox="0 0 820 300" role="img" aria-label="Sugar activates taste neurons, signal passes through the brain model, motor neurons extend the proboscis">
+            <g font-size="22" text-anchor="middle">
+              <circle cx="90" cy="150" r="70" fill="#5fe39a" fill-opacity=".15" stroke="#5fe39a" stroke-width="2"/>
+              <svg x="55" y="105" width="70" height="70" class="ico g"><use href="#i-taste"/></svg>
+              <text x="90" y="260" fill="#e9eef5">sugar</text>
+              <path d="M165 150 H245" stroke="#8d9bb0" stroke-width="2"/><path d="M235 142 L247 150 L235 158" fill="none" stroke="#8d9bb0" stroke-width="2"/>
+              <circle cx="320" cy="150" r="70" fill="#ffb454" fill-opacity=".15" stroke="#ffb454" stroke-width="2"/>
+              <svg x="285" y="115" width="70" height="70" class="ico w"><use href="#i-sparse"/></svg>
+              <text x="320" y="260" fill="#e9eef5">taste neurons</text>
+              <path d="M395 150 H475" stroke="#8d9bb0" stroke-width="2"/><path d="M465 142 L477 150 L465 158" fill="none" stroke="#8d9bb0" stroke-width="2"/>
+              <circle cx="550" cy="150" r="70" fill="#56b4ff" fill-opacity=".15" stroke="#56b4ff" stroke-width="2"/>
+              <svg x="515" y="115" width="70" height="70" class="ico b"><use href="#i-brain"/></svg>
+              <text x="550" y="260" fill="#e9eef5">whole brain</text>
+              <path d="M625 150 H705" stroke="#8d9bb0" stroke-width="2"/><path d="M695 142 L707 150 L695 158" fill="none" stroke="#8d9bb0" stroke-width="2"/>
+              <circle cx="760" cy="150" r="50" fill="#ff5fb8" fill-opacity=".2" stroke="#ff5fb8" stroke-width="2"/>
+              <text x="760" y="158" fill="#e9eef5" font-size="20">feed</text>
+              <text x="760" y="260" fill="#e9eef5">proboscis</text>
+            </g>
+          </svg>
+          <svg viewBox="0 0 300 300" role="img" aria-label="91 percent prediction accuracy">
+            <circle cx="150" cy="150" r="110" fill="none" stroke="#243042" stroke-width="26"/>
+            <circle cx="150" cy="150" r="110" fill="none" stroke="#5fe39a" stroke-width="26" stroke-dasharray="628.9 691.2" transform="rotate(-90 150 150)" stroke-linecap="round"/>
+            <text x="150" y="160" text-anchor="middle" fill="#e9eef5" font-size="64" font-family="Bricolage Grotesque, sans-serif" font-weight="800">91%</text>
+            <text x="150" y="196" text-anchor="middle" fill="#8d9bb0" font-size="20">confirmed</text>
+          </svg>
+        </div>
+        <p class="note">Also traced antennal grooming circuits. Runs on an ordinary computer.</p>
+      </section>
+
+      <section class="slide" data-part="Part 3 · Demonstrations">
+        <p class="eyebrow">Case 2 · Virtual bodies</p>
+        <h2>Giving the brain a body</h2>
+        <div class="bodies">
+          <div class="tile"><div class="hd"><svg class="ico p"><use href="#i-wing"/></svg><div><h3>flybody</h3><p class="by">HHMI Janelia + Google DeepMind</p></div></div>
+            <ul><li>Physics model of the whole fly body (MuJoCo)</li><li>Controllers trained by reinforcement learning</li><li>Walks, flies and follows trails</li></ul></div>
+          <div class="tile"><div class="hd"><svg class="ico b"><use href="#i-walk"/></svg><div><h3>NeuroMechFly v2</h3><p class="by">EPFL</p></div></div>
+            <ul><li>Physics body with simulated eyes and antennae</li><li>Vision and smell feed back into control</li><li>Navigates rough terrain and odour plumes</li></ul></div>
+        </div>
+        <p class="cite">Sources: Vaxenburg et al., Nature 2025 (flybody) · Wang-Chen et al., Nature Methods 2024 (NeuroMechFly v2) · videos in the supplement</p>
+      </section>
+
+      <section class="slide" data-part="Part 3 · Demonstrations">
+        <p class="eyebrow">Case 3 · Eon Systems, March 2026</p>
+        <h2>Brain, body and eyes in one loop</h2>
+        <div class="cols" style="grid-template-columns:1.2fr .8fr">
+          <svg viewBox="0 0 700 520" role="img" aria-label="Closed loop: eyes feed the brain, the brain drives the body, the body moves in the world which changes what the eyes see">
+            <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#8d9bb0"/></marker></defs>
+            <g fill="none" stroke="#8d9bb0" stroke-width="2.5" marker-end="url(#ah)">
+              <path d="M300 110 C 200 140 150 220 150 300"/>
+              <path d="M225 400 C 300 460 400 460 475 400"/>
+              <path d="M550 300 C 550 220 500 140 400 110"/>
+            </g>
+            <circle cx="350" cy="90" r="80" fill="#ff5fb8" fill-opacity=".15" stroke="#ff5fb8" stroke-width="2.5"/>
+            <svg x="315" y="45" width="70" height="70" class="ico m"><use href="#i-eye"/></svg>
+            <text x="470" y="60" fill="#ff5fb8" font-size="22">flyvis eyes</text>
+            <circle cx="150" cy="380" r="95" fill="#5fe39a" fill-opacity=".15" stroke="#5fe39a" stroke-width="2.5"/>
+            <svg x="110" y="325" width="80" height="80" class="ico g"><use href="#i-brain"/></svg>
+            <text x="150" y="502" text-anchor="middle" fill="#5fe39a" font-size="22">FlyWire + LIF brain</text>
+            <circle cx="550" cy="380" r="95" fill="#b18cff" fill-opacity=".15" stroke="#b18cff" stroke-width="2.5"/>
+            <svg x="510" y="325" width="80" height="80" class="ico p"><use href="#i-fly"/></svg>
+            <text x="550" y="502" text-anchor="middle" fill="#b18cff" font-size="22">NeuroMechFly body</text>
+            <text x="350" y="300" text-anchor="middle" fill="#8d9bb0" font-size="22">closed loop</text>
+            <g font-size="19" fill="#e9eef5"><text x="182" y="200" text-anchor="end">1 · image</text><text x="350" y="478" text-anchor="middle">2 · motor command</text><text x="520" y="200">3 · view changes</text></g>
+          </svg>
+          <div style="display:grid;gap:28px;align-content:center">
+            <ol class="steps">
+              <li><b class="m">See</b>flyvis eyes turn the virtual scene into visual signals</li>
+              <li><b class="g">Decide</b>the FlyWire LIF brain (~138 k neurons) picks an action</li>
+              <li><b class="p">Move</b>the NeuroMechFly body walks, which changes what the eyes see</li>
+            </ol>
+            <div class="chips"><span class="chip on">walk to food</span><span class="chip on">groom</span><span class="chip on">feed</span></div>
+            <p class="note">First public demo joining a connectome brain, eyes and body · <span class="m">120 M+</span> views on X · not peer-reviewed</p>
+          </div>
+        </div>
+      </section>
+
+
+      <section class="slide" data-part="Part 3 · Demonstrations">
+        <p class="eyebrow">Reality check · the Eon demo (Case 3)</p>
+        <h2>Who is really doing the walking?</h2>
+        <div class="apanel" style="margin-top:22px"><canvas id="rc-walk" style="height:350px" aria-label="Animated sketch: the brain sends one high-level command every few seconds; trained controllers turn it into a constant stream of joint signals that move the six legs"></canvas></div>
+        <div class="cmp" style="grid-template-columns:1fr 1fr;margin-top:14px">
+          <div><span class="g">Brain → controllers:</span> <span class="hl" id="rc-n1">0</span> commands sent</div>
+          <div><span class="w">Controllers → legs:</span> <span class="hl" id="rc-n2">0</span> joint signals sent</div>
+        </div>
+        <div class="chips" style="justify-content:center;margin-top:12px"><span class="chip">no neuromodulators</span><span class="chip">no plasticity</span><span class="chip">scripted scenes</span><span class="chip">not peer-reviewed</span></div>
+        <p class="note" style="text-align:center;margin-top:16px">The brain only picks a high-level action; trained body controllers make the steps. Verdict from critics: an impressive integration demo, not yet a brain upload.</p>
+        <p class="cite">Sources: Carboncopies Foundation, 2026 · Zeleznikow-Johnston, LessWrong, Mar 2026</p>
+      </section>
+
+      <section class="slide" data-part="Part 3 · Demonstrations">
+        <p class="eyebrow">Before Case 4 · what is Intel Loihi 2?</p>
+        <h2>A chip built like a brain</h2>
+        <div class="anim2">
+          <div class="apanel"><div class="ah"><h3 style="color:var(--fg)">CPU</h3><span>a few big cores · memory far away</span></div><canvas style="height:240px" id="hw-cpu" aria-label="Animated sketch: CPU cores constantly shuttle data to and from separate memory on every clock tick"></canvas></div>
+          <div class="apanel"><div class="ah"><h3 class="b">Loihi 2</h3><span>neuromorphic · 128 tiny cores, memory inside</span></div><canvas style="height:240px" id="hw-loihi" aria-label="Animated sketch: grid of small neuron cores that light up only when a spike message arrives"></canvas></div>
+        </div>
+        <div class="cmp">
+          <div class="k">Memory</div><div>Separate RAM: data travels back and forth</div><div><span class="hl">Inside each core</span>, next to its neurons</div>
+          <div class="k">Timing</div><div>Global clock: update every neuron every step</div><div><span class="hl">Event-driven</span>: works only when a spike arrives</div>
+          <div class="k">Talks by</div><div>Reading and writing shared memory</div><div><span class="hl">Spike messages</span> over an on-chip mesh</div>
+          <div class="k">Scale</div><div>General purpose, any program</div><div>Up to <span class="hl">~1 M neurons</span> per chip, spiking models only</div>
+        </div>
+        <p class="cite" style="padding-top:8px">Source: Intel Labs, Loihi 2 technology brief, 2021 · animated sketches, not to scale</p>
+      </section>
+
+      <section class="slide" data-part="Part 3 · Demonstrations">
+        <p class="eyebrow">Case 4 · Sandia on Intel Loihi 2</p>
+        <h2>The whole fly brain on a neuromorphic chip</h2>
+        <div class="bars">
+          <div class="bar-group">
+            <h3>Same model as Case 1 (sugar → feeding) · simulation run time</h3>
+            <div class="bar-row"><span class="lbl">CPU (Brian2)</span><div class="track"><div class="fill old" data-w="100">4.4 s</div></div></div>
+            <div class="bar-row"><span class="lbl b">Loihi 2</span><div class="track"><div class="fill" style="background:var(--vnc);min-width:0;padding:0" data-w="1.2"></div><span class="lval b" style="position:absolute;left:3%;top:50%;transform:translateY(-50%)">54 ms</span></div></div>
+          </div>
+        </div>
+        <div class="bignums" style="margin-top:50px">
+          <div class="num"><div class="v b">100×</div><div class="k">faster at sparse activity</div></div>
+          <div class="num"><div class="v g">140 k</div><div class="k">neurons</div></div>
+          <div class="num"><div class="v" style="color:var(--fg)">12–20</div><div class="k">Loihi 2 chips</div></div>
+        </div>
+        <p class="note" style="margin-top:34px">Neuromorphic chip: hardware that runs spiking neurons directly and only does work when a neuron spikes, so a sparse brain runs fast and cheaply.</p>
+        <p class="cite">Source: Wang et al. (Sandia National Laboratories), arXiv:2508.16792, 2025</p>
+      </section>
+
+<!-- ============ PART 4 ============ -->
+      <section class="slide divider" data-part="Part 4 · Fly vs. AI">
+        <div class="big-ico m"><svg class="ico"><use href="#i-chip"/></svg></div>
+        <p class="part m">Part 4</p>
+        <h2>Fly brain vs. AI models</h2>
+        <p class="lead mu" style="margin-top:30px">Nodes · connections · weights · energy</p>
+      </section>
+
+      <section class="slide" data-part="Part 4 · Fly vs. AI">
+        <p class="eyebrow">Translating the vocabulary</p>
+        <h2>Neuron ↔ node, synapse ↔ weight</h2>
+        <div class="fig">
+          <svg viewBox="0 0 1380 520" role="img" aria-label="Biological neuron pair with synapse count and sign compared with artificial neuron pair with a single learned weight">
+            <text x="330" y="40" text-anchor="middle" fill="#5fe39a" font-size="28" font-weight="600">FLY</text>
+            <text x="1050" y="40" text-anchor="middle" fill="#56b4ff" font-size="28" font-weight="600">ANN</text>
+            <line x1="690" y1="20" x2="690" y2="500" stroke="#243042" stroke-width="2"/>
+            <!-- fly -->
+            <g fill="none" stroke="#5fe39a" stroke-width="3">
+              <circle cx="120" cy="200" r="40" fill="#5fe39a" fill-opacity=".18"/>
+              <path d="M80 190 L30 150 M85 215 L30 250 M100 165 L80 110"/>
+              <path d="M160 200 C 250 160 380 160 480 195"/>
+              <path d="M480 195 L540 170 M480 195 L540 230"/>
+            </g>
+            <circle cx="560" cy="200" r="40" fill="#5fe39a" fill-opacity=".18" stroke="#5fe39a" stroke-width="3"/>
+            <g fill="#ffb454"><circle cx="300" cy="172" r="9"/><circle cx="340" cy="170" r="9"/><circle cx="380" cy="172" r="9"/></g>
+            <g font-size="20" fill="#e9eef5">
+              <text x="120" y="290" text-anchor="middle">neuron</text>
+              <text x="340" y="135" text-anchor="middle" fill="#ffb454">3 synapses</text>
+              <text x="330" y="380" text-anchor="middle">weight = <tspan fill="#ffb454">count</tspan> × <tspan fill="#5fe39a">± sign</tspan></text>
+              <text x="330" y="420" text-anchor="middle" fill="#8d9bb0">sign from neurotransmitter</text>
+              <text x="330" y="460" text-anchor="middle" fill="#8d9bb0">distance → delay, wiring cost</text>
+            </g>
+            <!-- ann -->
+            <circle cx="860" cy="200" r="40" fill="#56b4ff" fill-opacity=".18" stroke="#56b4ff" stroke-width="3"/>
+            <circle cx="1240" cy="200" r="40" fill="#56b4ff" fill-opacity=".18" stroke="#56b4ff" stroke-width="3"/>
+            <line x1="900" y1="200" x2="1200" y2="200" stroke="#56b4ff" stroke-width="3"/>
+            <g font-size="20" fill="#e9eef5">
+              <text x="860" y="290" text-anchor="middle">node</text>
+              <text x="1050" y="180" text-anchor="middle" fill="#ffb454">w = 0.73</text>
+              <text x="1050" y="380" text-anchor="middle">weight = one learned number</text>
+              <text x="1050" y="420" text-anchor="middle" fill="#8d9bb0">set by backpropagation</text>
+              <text x="1050" y="460" text-anchor="middle" fill="#8d9bb0">no distance, no delay</text>
+            </g>
+          </svg>
+        </div>
+      </section>
+
+      <section class="slide" data-part="Part 4 · Fly vs. AI">
+        <p class="eyebrow">Connections · log scale</p>
+        <h2>Synapses vs. parameters</h2>
+        <div class="logchart">
+          <div class="chart-body">
+            <div class="lrow"><span class="lbl">ResNet-50<small>vision · 2015</small></span><div class="ltrack"><div class="lbar" style="background:var(--dim)" data-w="5.1"></div><span class="lval">25.6 M</span></div></div>
+            <div class="lrow"><span class="lbl g">Male fly CNS<small>synapses · 2026</small></span><div class="ltrack"><div class="lbar" style="background:var(--brain)" data-w="13.7"></div><span class="lval g">125 M</span></div></div>
+            <div class="lrow"><span class="lbl">GPT-3<small>language · 2020</small></span><div class="ltrack"><div class="lbar" style="background:var(--dim)" data-w="53"></div><span class="lval">175 B</span></div></div>
+            <div class="lrow"><span class="lbl">Llama 3.1 405B<small>open LLM · 2024</small></span><div class="ltrack"><div class="lbar" style="background:var(--dim)" data-w="57.6"></div><span class="lval">405 B</span></div></div>
+            <div class="lrow"><span class="lbl m">Human brain<small>synapses · estimate</small></span><div class="ltrack"><div class="lbar" style="background:var(--female)" data-w="87.5"></div><span class="lval m">~100 T</span></div></div>
+          </div>
+          <div class="axis"><span></span><div class="ticks"><span style="left:0%">10 M</span><span style="left:25%">1 B</span><span style="left:50%">100 B</span><span style="left:75%">10 T</span><span style="left:100%">1,000 T</span></div></div>
+        </div>
+        <p class="punch">GPT-3 has <span class="g">~1,400×</span> more parameters than a fly has synapses.</p>
+      </section>
+
+      <section class="slide" data-part="Part 4 · Fly vs. AI">
+        <p class="eyebrow">Wiring and activity · animated sketch, not real data</p>
+        <h2>Scattered and looped vs. dense and one-way</h2>
+        <div class="anim2">
+          <div class="apanel"><div class="ah"><h3 class="g">Fly brain</h3><span id="wf-stat">active now: –</span></div><canvas id="wf-fly" aria-label="Animated sketch: sparse fly network where a few neurons spike and signals can loop back"></canvas></div>
+          <div class="apanel"><div class="ah"><h3 class="b">Transformer</h3><span id="wf-stat2">active now: –</span></div><canvas id="wf-ann" aria-label="Animated sketch: layered network where every unit passes to every unit of the next layer, left to right"></canvas></div>
+        </div>
+        <div class="cmp">
+          <div class="k">Connections</div><div><span class="hl">~750 synapses per neuron</span>, reaching under 1% of the brain</div><div><span class="hl">Every unit → every unit</span> of the next layer</div>
+          <div class="k">Direction</div><div><span class="hl">Both ways</span>: signals loop back and echo</div><div><span class="hl">One way</span>: input → output, no loops</div>
+          <div class="k">Activity</div><div><span class="hl">A few neurons spike</span> at any moment</div><div><span class="hl">Every unit computes</span> at every step</div>
+        </div>
+      </section>
+
+      <section class="slide" data-part="Part 4 · Fly vs. AI">
+        <p class="eyebrow">Architecture</p>
+        <h2>What the fly does that most models don’t</h2>
+        <div class="tiles t3">
+          <div class="tile"><svg class="ico g"><use href="#i-loop"/></svg><h3>Recurrent</h3><p>loops between regions</p></div>
+          <div class="tile"><svg class="ico p"><use href="#i-types"/></svg><h3>~8,400 cell types</h3><p>not one repeated block</p></div>
+          <div class="tile"><svg class="ico b"><use href="#i-sparse"/></svg><h3>Sparse</h3><p>in wiring and in time</p></div>
+          <div class="tile"><svg class="ico m"><use href="#i-dna"/></svg><h3>Pre-wired</h3><p>works at birth, before learning</p></div>
+          <div class="tile"><svg class="ico w"><use href="#i-fly"/></svg><h3>Embodied</h3><p>body is part of the loop</p></div>
+          <div class="tile"><svg class="ico g"><use href="#i-layers"/></svg><h3>Connectome as prior</h3><p>flyvis: fixed wiring, few trained parameters</p></div>
+        </div>
+      </section>
+
+      <section class="slide" data-part="Part 4 · Fly vs. AI">
+        <p class="eyebrow">Power while running (not training) · log scale · watts</p>
+        <h2>Biology vs. silicon</h2>
+        <div class="logchart">
+          <div class="chart-body">
+            <div class="lrow"><span class="lbl g">Fly brain<small>measured · ~0.25 µW</small></span><div class="ltrack"><div class="lbar" style="background:var(--brain)" data-w="3.6"></div><span class="lval g">0.00000025 W</span></div></div>
+            <div class="lrow"><span class="lbl b">Loihi 2 chip<small>estimate</small></span><div class="ltrack"><div class="lbar" style="background:var(--vnc)" data-w="66.9"></div><span class="lval b">~2 W</span></div></div>
+            <div class="lrow"><span class="lbl m">Human brain<small>textbook figure</small></span><div class="ltrack"><div class="lbar" style="background:var(--female)" data-w="75.5"></div><span class="lval m">~20 W</span></div></div>
+            <div class="lrow"><span class="lbl">NVIDIA H100<small>max board power</small></span><div class="ltrack"><div class="lbar" style="background:var(--dim)" data-w="89.5"></div><span class="lval">700 W</span></div></div>
+          </div>
+          <div class="axis"><span></span><div class="ticks"><span style="left:9.1%">1 µW</span><span style="left:36.4%">1 mW</span><span style="left:63.6%">1 W</span><span style="left:90.9%">1 kW</span></div></div>
+        </div>
+        <p class="punch">Each step on the axis is <span class="g">1,000×</span> more power.</p>
+        <p class="cite">Training is extra: GPT-3’s single training run used ~1,300 MWh (Patterson et al. 2021), enough to run a fly brain for longer than the universe has existed.</p>
+      </section>
+
+      <section class="slide" data-part="Part 4 · Fly vs. AI">
+        <p class="eyebrow">Same task: running one fly brain</p>
+        <h2>A GPU simulating a fly draws the power of 2.8 billion real ones</h2>
+        <div class="equiv">
+          <div class="gpu"><svg class="ico"><use href="#i-gpu"/></svg><span>1 × H100 · 700 W</span></div>
+          <div class="eq">=</div>
+          <div>
+            <div class="flygrid" id="flygrid"></div>
+            <p class="note" style="margin-top:20px"><span class="g">●</span> each icon = 100 million fly brains at ~0.25 µW</p>
+          </div>
+        </div>
+        <p class="note" style="margin-top:auto">Order-of-magnitude only: fly figure from dissected brains in a calorimeter; GPU figure is peak rating.</p>
+      </section>
+
+<!-- ============ CLOSING ============ -->
+      <section class="slide" data-part="Closing">
+        <p class="eyebrow">Takeaways</p>
+        <h2>What the fly teaches us</h2>
+        <div class="take">
+          <div class="t"><svg class="ico g"><use href="#i-map"/></svg><p>Complete wiring for both sexes: <b>166 k+</b> neurons</p></div>
+          <div class="t"><svg class="ico p"><use href="#i-code"/></svg><p>Open code runs it on GPUs, browsers, chips</p></div>
+          <div class="t"><svg class="ico w"><use href="#i-warn"/></svg><p>Wiring alone ≠ a working mind, yet</p></div>
+          <div class="t"><svg class="ico b"><use href="#i-bolt"/></svg><p>Sparse, recurrent, pre-wired = huge energy savings</p></div>
+        </div>
+        <div class="openq"><h3>Open questions</h3><div class="oq">
+          <span>Can a wiring diagram guide how we design AI models?</span>
+          <span>What do learning and neuromodulators add on top of wiring?</span>
+          <span>Can neuromorphic chips close the energy gap?</span>
+        </div></div>
+        <div class="thanks"><span>Thank you · Questions?</span><span>Panason Manorost</span></div>
+      </section>
+
+      <section class="slide" data-part="Closing">
+        <p class="eyebrow">Sources</p>
+        <h2>References and links</h2>
+        <ul class="src">
+          <li>Januszewski &amp; Jain. A connectomics milestone: mapping the complete male fruit fly brain. Google Research Blog, 3 Sep 2026. <a href="https://research.google/blog/a-connectomics-milestone-mapping-the-complete-male-fruit-fly-brain/" target="_blank" rel="noopener">research.google</a></li>
+          <li>HHMI Janelia FlyEM. Male CNS connectome v1.0, 2026. <a href="https://www.janelia.org/project-team/flyem/male-cns-connectome" target="_blank" rel="noopener">janelia.org</a></li>
+          <li>Sexual dimorphism in the complete Drosophila male central nervous system connectome. Cell, 2026. <a href="https://www.cell.com/cell/fulltext/S0092-8674(26)00942-6" target="_blank" rel="noopener">cell.com</a></li>
+          <li>The organization of visual pathways in the Drosophila brain. Cell, 2026. <a href="https://www.cell.com/cell/fulltext/S0092-8674(26)00941-4" target="_blank" rel="noopener">cell.com</a></li>
+          <li>The complete gustatory connectome of adult Drosophila reveals how taste guides feeding, foraging, and social behavior. Cell, 2026. <a href="https://www.sciencedirect.com/science/article/pii/S0092867426009438" target="_blank" rel="noopener">sciencedirect.com</a></li>
+          <li>Networks of sexually dimorphic neurons that regulate social behaviors in Drosophila. Current Biology, 2026. <a href="https://www.cell.com/current-biology/fulltext/S0960-9822(26)01023-7" target="_blank" rel="noopener">cell.com</a></li>
+          <li>Li et al. Automated reconstruction of a serial-section EM Drosophila brain with flood-filling networks and local realignment. bioRxiv, 2019. <a href="https://www.biorxiv.org/content/10.1101/605634" target="_blank" rel="noopener">doi:10.1101/605634</a></li>
+          <li>Scheffer et al. A connectome and analysis of the adult Drosophila central brain. eLife, 2020. <a href="https://elifesciences.org/articles/57443" target="_blank" rel="noopener">elifesciences.org</a></li>
+          <li>Dorkenwald et al. (FlyWire). Neuronal wiring diagram of an adult brain. Nature, 2024. <a href="https://www.nih.gov/news-events/nih-research-matters/complete-wiring-map-adult-fruit-fly-brain" target="_blank" rel="noopener">NIH summary</a></li>
+          <li>Eon Systems. fly-brain. <a href="https://github.com/eonsystemspbc/fly-brain" target="_blank" rel="noopener">github.com/eonsystemspbc/fly-brain</a></li>
+          <li>Lulzx. fly-brain. <a href="https://github.com/Lulzx/fly-brain" target="_blank" rel="noopener">github.com/Lulzx/fly-brain</a></li>
+          <li>Shiu et al. A Drosophila computational brain model reveals sensorimotor processing. Nature, 2024.</li>
+          <li>Lappalainen et al. Connectome-constrained networks predict neural activity across the fly visual system. Nature, 2024.</li>
+          <li>Vaxenburg et al. Whole-body physics simulation of fruit fly locomotion (flybody). Nature, 2025. <a href="https://www.janelia.org/news/artificial-intelligence-brings-a-virtual-fly-to-life" target="_blank" rel="noopener">Janelia news</a></li>
+          <li>Wang-Chen et al. NeuroMechFly v2. Nature Methods, 2024.</li>
+          <li>Eon Systems updates, Mar 2026. <a href="https://eon.systems/updates" target="_blank" rel="noopener">eon.systems/updates</a></li>
+          <li>Carboncopies Foundation. No, a fruit fly has not been uploaded. <a href="https://carboncopies.org/Blog/Posts/FruitFlyNotUploaded/Post/" target="_blank" rel="noopener">carboncopies.org</a></li>
+          <li>Zeleznikow-Johnston. No, we haven’t uploaded a fly yet. LessWrong, Mar 2026. <a href="https://www.lesswrong.com/posts/ybwcxBRrsKavJB9Wz/no-we-haven-t-uploaded-a-fly-yet" target="_blank" rel="noopener">lesswrong.com</a></li>
+          <li>Wang et al. (Sandia). Neuromorphic simulation of Drosophila melanogaster on Loihi 2. <a href="https://arxiv.org/abs/2508.16792" target="_blank" rel="noopener">arXiv:2508.16792</a></li>
+          <li>Direct quantification of the metabolic heat output of individual Drosophila brains. <a href="https://www.biorxiv.org/content/10.1101/2025.08.08.669302v2" target="_blank" rel="noopener">bioRxiv 2025</a></li>
+          <li>Patterson et al. Carbon emissions and large neural network training. 2021. <a href="https://arxiv.org/abs/2104.10350" target="_blank" rel="noopener">arXiv:2104.10350</a></li>
+          <li>Model sizes: ResNet-50 (He et al. 2015), GPT-3 (Brown et al. 2020), Llama 3.1 (Meta 2024).</li>
+          <li>H100 700 W SXM TDP (NVIDIA). Loihi 2 per-chip power derived from Intel Hala Point (1,152 chips, 2.6 kW max).</li>
+        </ul>
+      </section>
+
+      <section class="slide" data-part="Supplement">
+        <p class="eyebrow">Supplement</p>
+        <h2>Videos</h2>
+        <div class="videos" style="margin-top:34px">
+          <a class="vid" href="https://www.youtube.com/watch?v=A8fDr7Rr7yM" target="_blank" rel="noopener"><div class="thumb"><div class="play"></div></div><div><h3>Fruit fly brain in simulation: 125,000 neurons controlling a virtual body</h3><p>YouTube</p></div></a>
+          <a class="vid" href="https://www.youtube.com/watch?v=bo7Np-8MvBE" target="_blank" rel="noopener"><div class="thumb"><div class="play"></div></div><div><h3>Fruit fly lives in a virtual world</h3><p>YouTube</p></div></a>
+          <a class="vid" href="https://www.janelia.org/news/artificial-intelligence-brings-a-virtual-fly-to-life" target="_blank" rel="noopener"><div class="thumb"><div class="play"></div></div><div><h3>AI brings a virtual fly to life (flybody)</h3><p>HHMI Janelia</p></div></a>
+          <a class="vid" href="https://www.youtube.com/watch?v=PNso5yt9_vM" target="_blank" rel="noopener"><div class="thumb"><div class="play"></div></div><div><h3>NeuroMechFly</h3><p>YouTube</p></div></a>
+          <a class="vid" href="https://www.youtube.com/watch?v=S75sGbos6qw" target="_blank" rel="noopener"><div class="thumb"><div class="play"></div></div><div><h3>NeuroMechFly workshop, SfN 2024</h3><p>YouTube · technical</p></div></a>
+          <a class="vid" href="https://eon.systems/updates" target="_blank" rel="noopener"><div class="thumb"><div class="play"></div></div><div><h3>Eon Systems technical deep dive</h3><p>eon.systems</p></div></a>
+        </div>
+        <p class="note" style="margin-top:auto">Opens in a new tab. Most are third-party explainers.</p>
+      </section>
+
+      <div class="foot"><span id="foot-part">Opening</span><span id="foot-n"></span></div>
+    </div>
+  </div>
+  <div class="controls">
+    <button id="prev" aria-label="Previous slide">←</button>
+    <span class="count" id="count">1 / 33</span>
+    <button id="next" aria-label="Next slide">→</button>
+    <div class="progress"><i id="bar"></i></div>
+    <span class="hint">← → buttons or arrow keys · L = laser</span>
+    <button id="laser" aria-pressed="false" title="Laser pointer (L)">Laser pointer</button>
+    <button id="fs">Fullscreen</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const stage=document.getElementById('stage'), wrap=document.getElementById('wrap');
+  const slides=[...document.querySelectorAll('.slide')];
+  const N=slides.length; let i=0;
+  if(/^#\d+$/.test(location.hash)) i=Math.min(N-1,Math.max(0,parseInt(location.hash.slice(1))-1));
+
+  // neuron dot matrix: 166 dots of 180
+  const dots=document.getElementById('neuron-dots');
+  for(let k=0;k<180;k++){const d=document.createElement('i'); if(k>=166)d.className='o'; dots.appendChild(d);}
+  // gpu = 28 fly icons
+  const fg=document.getElementById('flygrid');
+  for(let k=0;k<28;k++){fg.insertAdjacentHTML('beforeend','<svg class="ico"><use href="#i-fly"/></svg>');}
+
+  let seed=11; const rnd=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646};
+  // ---------- animated sketches (run only while their slide is on screen)
+  function cvs(id){const c=document.getElementById(id),r=2,w=c.clientWidth||640,h=c.clientHeight||300;c.width=w*r;c.height=h*r;const x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return {c,x,w,h};}
+  let rs=7;const R=()=>{rs=(rs*16807)%2147483647;return (rs-1)/2147483646};
+  const G='#5fe39a',B='#56b4ff',MU='#3a4658',BG='#121823';
+  // fly network
+  const F={nodes:[],edges:[],out:[],sp:[],t:0};
+  (function(){const cl=[[.13,.5],[.35,.27],[.37,.74],[.61,.5],[.86,.5]];F.cl=cl;
+    cl.forEach((c,ci)=>{for(let k=0;k<12;k++){const a=R()*6.28,d=.03+Math.sqrt(R())*.075;F.nodes.push({x:c[0]+Math.cos(a)*d,y:c[1]+Math.sin(a)*d*1.75,c:ci,v:0,ref:0});}});
+    const n=F.nodes.length;for(let i=0;i<n;i++)F.out[i]=[];
+    for(let i=0;i<n;i++)for(let j=0;j<n;j++){if(i===j)continue;const same=F.nodes[i].c===F.nodes[j].c,near=Math.abs(F.nodes[i].c-F.nodes[j].c)===1;
+      const p=same?.10:near?.025:.004;if(R()<p){F.edges.push([i,j]);F.out[i].push(j);}}})();
+  function flyStep(o){const {x,w,h}=o;F.t++;
+    if(F.t%30===0){for(let k=0;k<3;k++)fire(Math.floor(R()*12));}
+    x.fillStyle=BG;x.fillRect(0,0,w,h);
+    for(const c of F.cl){x.fillStyle='rgba(95,227,154,.05)';x.beginPath();x.ellipse(c[0]*w,c[1]*h,w*.11,h*.2,0,0,6.3);x.fill();}
+    x.lineWidth=1;x.strokeStyle='rgba(95,227,154,.13)';x.beginPath();
+    for(const [a,b] of F.edges){const A=F.nodes[a],Bn=F.nodes[b];x.moveTo(A.x*w,A.y*h);x.lineTo(Bn.x*w,Bn.y*h);}x.stroke();
+    const keep=[];for(const s of F.sp){s.p+=0.03;const A=F.nodes[s.a],Bn=F.nodes[s.b];
+      if(s.p>=1){const nb=F.nodes[s.b];nb.v+=0.75;if(nb.v>=1&&nb.ref<=0)fire(s.b);continue;}
+      const px=(A.x+(Bn.x-A.x)*s.p)*w,py=(A.y+(Bn.y-A.y)*s.p)*h;x.strokeStyle='rgba(95,227,154,.55)';x.lineWidth=1.6;x.beginPath();x.moveTo(A.x*w,A.y*h);x.lineTo(px,py);x.stroke();
+      x.fillStyle=G;x.beginPath();x.arc(px,py,2.6,0,6.3);x.fill();keep.push(s);}
+    F.sp=keep;let act=0;
+    for(const nd of F.nodes){nd.v*=0.97;if(nd.ref>0)nd.ref--;const glow=Math.max(0,nd.ref-10)/30;if(glow>0)act++;
+      x.fillStyle=glow>0?G:'#1d2a24';x.strokeStyle=G;x.lineWidth=1.2;x.globalAlpha=glow>0?1:.75;x.beginPath();x.arc(nd.x*w,nd.y*h,glow>0?6+3*glow:4.5,0,6.3);x.fill();x.stroke();x.globalAlpha=1;}
+    x.fillStyle='#8d9bb0';x.font='13px IBM Plex Mono, monospace';x.textAlign='center';x.fillText('input',w*.13,h*.5+h*.26);x.fillText('regions = clusters of cell types',w*.6,h-6);x.textAlign='left';
+    document.getElementById('wf-stat').textContent='active now: '+act+' / '+F.nodes.length;}
+  function fire(i){const nd=F.nodes[i];nd.v=0;nd.ref=40;for(const j of F.out[i])if(R()<.55&&F.sp.length<160)F.sp.push({a:i,b:j,p:0});}
+  // transformer
+  const T={L:5,U:7,t:0};
+  function annStep(o){const {x,w,h}=o;T.t++;const per=46,cyc=per*(T.L);const ph=T.t%cyc,lay=Math.floor(ph/per),f=(ph%per)/per;
+    x.fillStyle=BG;x.fillRect(0,0,w,h);
+    const X=l=>w*(.1+.8*l/(T.L-1)),Y=u=>h*(.12+.76*u/(T.U-1));
+    for(let l=0;l<T.L-1;l++){const on=l===lay;x.strokeStyle=on?'rgba(86,180,255,.55)':'rgba(86,180,255,.12)';x.lineWidth=on?1.3:1;x.beginPath();
+      for(let a=0;a<T.U;a++)for(let b=0;b<T.U;b++){x.moveTo(X(l),Y(a));x.lineTo(X(l+1),Y(b));}x.stroke();
+      if(on&&l<T.L-1){x.fillStyle=B;for(let a=0;a<T.U;a++)for(let b=0;b<T.U;b++){x.beginPath();x.arc(X(l)+(X(l+1)-X(l))*f,Y(a)+(Y(b)-Y(a))*f,2.2,0,6.3);x.fill();}}}
+    let act=0;for(let l=0;l<T.L;l++)for(let u=0;u<T.U;u++){const on=l===lay||(l===lay+1&&f>.9);if(on)act++;
+      x.fillStyle=on?B:'#16233a';x.strokeStyle=B;x.lineWidth=1.2;x.beginPath();x.arc(X(l),Y(u),on?8:6,0,6.3);x.fill();x.stroke();}
+    x.fillStyle='#8d9bb0';x.font='13px IBM Plex Mono, monospace';x.textAlign='center';
+    for(let l=0;l<T.L;l++)x.fillText(l===0?'input':l===T.L-1?'output':'layer '+l,X(l),h-4);x.textAlign='left';
+    document.getElementById('wf-stat2').textContent='active now: '+T.U+' / '+(T.L*T.U)+' · whole layer at once';}
+  // CPU
+  const C={t:0,dots:[]};
+  function cpuStep(o){const {x,w,h}=o;C.t++;x.fillStyle=BG;x.fillRect(0,0,w,h);
+    const ram={x:w*.62,y:h*.12,w:w*.3,h:h*.62},cores=[[w*.06,h*.12],[w*.25,h*.12],[w*.06,h*.46],[w*.25,h*.46]],cw=w*.16,ch=h*.28;
+    const tick=Math.floor(C.t/24)%2;
+    cores.forEach(([cx,cy])=>{x.fillStyle='#1b2433';x.strokeStyle='#c5cfdc';x.lineWidth=1.5;x.fillRect(cx,cy,cw,ch);x.strokeRect(cx,cy,cw,ch);
+      x.fillStyle='#c5cfdc';x.font='600 15px IBM Plex Mono, monospace';x.textAlign='center';x.fillText('core',cx+cw/2,cy+ch/2+5);});
+    x.fillStyle='#1b2433';x.strokeStyle='#ffb454';x.fillRect(ram.x,ram.y,ram.w,ram.h);x.strokeRect(ram.x,ram.y,ram.w,ram.h);
+    x.fillStyle='#ffb454';x.fillText('memory (RAM)',ram.x+ram.w/2,ram.y+28);
+    for(let r=0;r<6;r++)for(let q=0;q<5;q++){x.fillStyle=(r*5+q+Math.floor(C.t/6))%7===0?'#ffb454':'#2a3446';x.fillRect(ram.x+14+q*(ram.w-28)/5,ram.y+48+r*(ram.h-64)/6,(ram.w-28)/5-6,(ram.h-64)/6-6);}
+    const bx0=w*.41+6,bx1=ram.x-6,by0=h*.27,by1=h*.6;x.strokeStyle='#3a4658';x.lineWidth=10;x.beginPath();x.moveTo(bx0,by0);x.lineTo(bx1,by0);x.moveTo(bx0,by1);x.lineTo(bx1,by1);x.stroke();
+    for(let k=0;k<6;k++){const f=((C.t*0.025)+k/6)%1;x.fillStyle='#ffb454';x.beginPath();x.arc(bx0+(bx1-bx0)*f,by0,4,0,6.3);x.fill();x.fillStyle='#c5cfdc';x.beginPath();x.arc(bx1-(bx1-bx0)*f,by1,4,0,6.3);x.fill();}
+    x.fillStyle='#8d9bb0';x.font='13px IBM Plex Mono, monospace';x.fillText('data bus',(bx0+bx1)/2,by0-12);
+    x.textAlign='left';x.fillStyle=tick?'#e9eef5':'#3a4658';x.beginPath();x.arc(w*.07,h*.88,7,0,6.3);x.fill();
+    x.fillStyle='#8d9bb0';x.fillText('every clock tick → update all 140 k neurons, busy or not',w*.07+16,h*.88+5);}
+  // Loihi
+  const Lh={t:0,cols:16,rows:8,heat:new Float32Array(128),msg:[]};
+  function loihiStep(o){const {x,w,h}=o;Lh.t++;x.fillStyle=BG;x.fillRect(0,0,w,h);
+    const gx=w*.04,gy=h*.06,gw=w*.92,gh=h*.72,cw=gw/Lh.cols,chh=gh/Lh.rows,P=k=>[gx+(k%Lh.cols+.5)*cw,gy+(Math.floor(k/Lh.cols)+.5)*chh];
+    x.strokeStyle='#1f2b3c';x.lineWidth=2;x.beginPath();for(let r=0;r<Lh.rows;r++){x.moveTo(gx+cw/2,gy+(r+.5)*chh);x.lineTo(gx+gw-cw/2,gy+(r+.5)*chh);}for(let q=0;q<Lh.cols;q++){x.moveTo(gx+(q+.5)*cw,gy+chh/2);x.lineTo(gx+(q+.5)*cw,gy+gh-chh/2);}x.stroke();
+    if(Lh.t%18===0){const a=Math.floor(R()*128);Lh.heat[a]=1;for(let k=0;k<2;k++)Lh.msg.push({a,b:Math.floor(R()*128),p:0});}
+    const keep=[];for(const m of Lh.msg){m.p+=0.035;if(m.p>=1){Lh.heat[m.b]=1;if(R()<.45&&Lh.msg.length<20)keep.push({a:m.b,b:Math.floor(R()*128),p:0});continue;}
+      const [ax,ay]=P(m.a),[bx,by]=P(m.b);const mid=[bx,ay];const f=m.p,seg1=Math.abs(bx-ax),seg2=Math.abs(by-ay),L=seg1+seg2||1,d=f*L;
+      let px,py;if(d<seg1){px=ax+Math.sign(bx-ax)*d;py=ay;}else{px=bx;py=ay+Math.sign(by-ay)*(d-seg1);}
+      x.fillStyle=B;x.beginPath();x.arc(px,py,3.5,0,6.3);x.fill();keep.push(m);}
+    Lh.msg=keep;let act=0;
+    for(let k=0;k<128;k++){const [cx,cy]=P(k),hv=Lh.heat[k];Lh.heat[k]*=0.93;if(hv>.2)act++;
+      x.fillStyle=hv>.05?`rgba(86,180,255,${.2+.8*hv})`:'#162030';x.strokeStyle=hv>.05?B:'#2a3a52';x.lineWidth=1;x.fillRect(cx-cw*.36,cy-chh*.36,cw*.72,chh*.72);x.strokeRect(cx-cw*.36,cy-chh*.36,cw*.72,chh*.72);
+      x.fillStyle='#ffb454';x.globalAlpha=.6;x.fillRect(cx-cw*.36,cy+chh*.2,cw*.72,chh*.16);x.globalAlpha=1;}
+    x.font='13px IBM Plex Mono, monospace';x.fillStyle='#8d9bb0';x.textAlign='left';
+    x.fillStyle='#ffb454';x.fillRect(w*.04,h*.88-7,12,6);x.fillStyle='#8d9bb0';x.fillText('= local memory   ',w*.04+18,h*.88);
+    x.fillText('cores working now: '+act+' / 128 · the rest sit idle',w*.32,h*.88);}
+  // reality check: who does the walking
+  const W={t:0,cmds:['walk forward','turn left','walk forward','stop'],ci:-1,cmd:'stop',pk:null,streams:[],n1:0,n2:0,ph:0,ang:0,gx:0};
+  function walkStep(o){const {x,w,h}=o;W.t++;x.fillStyle=BG;x.fillRect(0,0,w,h);
+    const bx={x:w*.03,y:h*.2,w:w*.17,h:h*.52},cx={x:w*.3,y:h*.08,w:w*.32,h:h*.76},fx={x:w*.72,y:h*.06,w:w*.26,h:h*.8};
+    const box=(b,col,t1,t2)=>{x.fillStyle=col.replace('1)','.08)');x.strokeStyle=col;x.lineWidth=2;x.beginPath();x.roundRect(b.x,b.y,b.w,b.h,10);x.fill();x.stroke();
+      x.fillStyle='#e9eef5';x.font='600 17px IBM Plex Mono, monospace';x.textAlign='center';x.fillText(t1,b.x+b.w/2,b.y+b.h+24);x.fillStyle='#8d9bb0';x.font='14px IBM Plex Mono, monospace';x.fillText(t2,b.x+b.w/2,b.y+b.h+44);};
+    box(bx,'rgba(95,227,154,1)','connectome brain','picks an action');
+    box(cx,'rgba(255,180,84,1)','pre-trained controllers','trained by RL · do the leg work');
+    box(fx,'rgba(177,140,255,1)','body · 6 legs','physics simulation');
+    // brain: sparse spiking dots
+    for(let k=0;k<26;k++){const px=bx.x+14+(k%6)*(bx.w-28)/5,py=bx.y+18+Math.floor(k/6)*(bx.h-36)/4,on=((k*7+Math.floor(W.t/9))%11)===0;
+      x.fillStyle=on?G:'#2c4a3a';x.beginPath();x.arc(px,py,on?6:4,0,6.3);x.fill();}
+    // new command every ~2.6 s
+    if(W.t%160===1){W.ci=(W.ci+1)%W.cmds.length;W.pk={p:0,c:W.cmds[W.ci]};W.n1++;}
+    const ax0=bx.x+bx.w,ax1=cx.x,ay=bx.y+bx.h/2;x.strokeStyle='#3a4658';x.lineWidth=3;x.beginPath();x.moveTo(ax0,ay);x.lineTo(ax1,ay);x.stroke();
+    if(W.pk){W.pk.p+=0.02;const px=ax0+(ax1-ax0)*Math.min(1,W.pk.p);x.fillStyle=G;x.beginPath();x.arc(px,ay,9,0,6.3);x.fill();
+      x.font='600 15px IBM Plex Mono, monospace';x.textAlign='center';x.fillStyle='#e9eef5';x.fillText('“'+W.pk.c+'”',(ax0+ax1)/2,ay-20);
+      if(W.pk.p>=1){W.cmd=W.pk.c;W.pk.done=(W.pk.done||0)+1;if(W.pk.done>70)W.pk=null;}}
+    // controllers: busy network
+    const cols=7,rows=6;for(let q=0;q<cols;q++)for(let r=0;r<rows;r++){const px=cx.x+30+q*(cx.w-60)/(cols-1),py=cx.y+30+r*(cx.h-60)/(rows-1);
+      const busy=W.cmd!=='stop';const on=busy&&Math.sin(W.t*.25+q*1.3+r*2.1)>0.2;
+      if(q<cols-1){x.strokeStyle='rgba(255,180,84,.10)';x.lineWidth=1;x.beginPath();for(let r2=0;r2<rows;r2++){x.moveTo(px,py);x.lineTo(cx.x+30+(q+1)*(cx.w-60)/(cols-1),cx.y+30+r2*(cx.h-60)/(rows-1));}x.stroke();}
+      x.fillStyle=on?'#ffb454':'#3a2f1f';x.beginPath();x.arc(px,py,on?6:4.5,0,6.3);x.fill();}
+    x.font='600 15px IBM Plex Mono, monospace';x.fillStyle='#ffb454';x.textAlign='center';x.fillText('now running: '+W.cmd,cx.x+cx.w/2,cx.y-10>14?cx.y-10:cx.y+16);
+    // many streams to legs
+    const sx0=cx.x+cx.w,sx1=fx.x;
+    if(W.cmd!=='stop')for(let k=0;k<3;k++){W.streams.push({p:0,y:cx.y+20+R()*(cx.h-40),y2:fx.y+30+R()*(fx.h-60)});W.n2++;}
+    W.streams=W.streams.filter(m=>(m.p+=0.04)<1);
+    x.fillStyle='#ffb454';for(const m of W.streams){x.beginPath();x.arc(sx0+(sx1-sx0)*m.p,m.y+(m.y2-m.y)*m.p,2.4,0,6.3);x.fill();}
+    // fly body with tripod gait
+    const walking=W.cmd!=='stop';if(walking)W.ph+=0.22;
+    if(W.cmd==='turn left')W.ang-=0.012;else W.ang*=0.985;
+    const fcx=fx.x+fx.w/2,fcy=fx.y+fx.h/2;
+    if(walking)W.gx=(W.gx+2)%40;
+    x.save();x.beginPath();x.roundRect(fx.x+2,fx.y+2,fx.w-4,fx.h-4,9);x.clip();
+    x.strokeStyle='rgba(177,140,255,.12)';x.lineWidth=1;for(let yy=fx.y-40+W.gx;yy<fx.y+fx.h;yy+=40){x.beginPath();x.moveTo(fx.x,yy);x.lineTo(fx.x+fx.w,yy);x.stroke();}
+    x.translate(fcx,fcy);x.rotate(W.ang);
+    const legs=[[-1,-1,0],[1,-1,1],[-1,0,1],[1,0,0],[-1,1,0],[1,1,1]];
+    x.strokeStyle='#c5cfdc';x.lineWidth=3;x.lineCap='round';
+    for(const [sd,row,grp] of legs){const sw=walking?Math.sin(W.ph+(grp?Math.PI:0))*14:0;const hx=sd*16,hy=row*20;
+      const kx=sd*46,ky=row*30+sw*.5-8,fxp=sd*62,fyp=row*44+sw;x.beginPath();x.moveTo(hx,hy);x.lineTo(kx,ky);x.lineTo(fxp,fyp);x.stroke();
+      x.fillStyle=walking&&Math.sin(W.ph+(grp?Math.PI:0))>0?'#ffb454':'#8d9bb0';x.beginPath();x.arc(fxp,fyp,4,0,6.3);x.fill();}
+    x.fillStyle='rgba(177,140,255,.35)';x.strokeStyle='#b18cff';x.lineWidth=2;
+    x.beginPath();x.ellipse(0,-34,14,12,0,0,6.3);x.fill();x.stroke();
+    x.beginPath();x.ellipse(0,0,18,26,0,0,6.3);x.fill();x.stroke();
+    x.beginPath();x.ellipse(0,46,16,26,0,0,6.3);x.fill();x.stroke();
+    x.fillStyle='#ff5f6d';x.beginPath();x.arc(-9,-40,4,0,6.3);x.arc(9,-40,4,0,6.3);x.fill();
+    x.restore();x.textAlign='left';
+    document.getElementById('rc-n1').textContent=W.n1;document.getElementById('rc-n2').textContent=W.n2.toLocaleString();}
+  (function(){const box=document.querySelector('.anat9');if(!box)return;const sv=box.querySelector('svg');
+    const set=k=>{sv.classList.toggle('hl',!!k);box.querySelectorAll('[data-k]').forEach(e=>e.classList.toggle('on',e.dataset.k===k));};
+    box.querySelectorAll('[data-k]').forEach(e=>{e.addEventListener('mouseenter',()=>set(e.dataset.k));e.addEventListener('mouseleave',()=>set(null));});})();
+  const ANIM=[['wf-fly',flyStep],['wf-ann',annStep],['hw-cpu',cpuStep],['hw-loihi',loihiStep],['rc-walk',walkStep]].map(([id,fn])=>({id,fn,o:null}));
+  const rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function loop(){for(const a of ANIM){const c=document.getElementById(a.id);const sl=c.closest('.slide');
+      if(!sl.classList.contains('active')||!c.clientWidth)continue;
+      if(!a.o||a.o.w!==c.clientWidth){a.o=cvs(a.id);for(let k=0;k<(rm?200:1);k++)a.fn(a.o);}
+      if(!rm)a.fn(a.o);}
+    requestAnimationFrame(loop);}
+  requestAnimationFrame(loop);
+
+  function fit(){
+    const r=wrap.getBoundingClientRect();
+    const s=Math.min(r.width/1600,r.height/900);
+    stage.style.transform=`translate(-50%,-50%) scale(${s})`;
+  }
+  function animateBars(root){
+    root.querySelectorAll('.fill,.lbar').forEach(f=>{f.style.transition='none';f.style.width='0%';void f.offsetWidth;f.style.transition='';requestAnimationFrame(()=>f.style.width=f.dataset.w+'%')});
+  }
+  function show(n){
+    i=Math.max(0,Math.min(N-1,n));
+    slides.forEach((s,k)=>{s.classList.toggle('active',k===i);s.classList.toggle('past',k<i);s.setAttribute('aria-hidden',k!==i)});
+    document.getElementById('count').textContent=`${i+1} / ${N}`;
+    document.getElementById('foot-n').textContent=String(i+1).padStart(2,'0')+' / '+N;
+    document.getElementById('foot-part').textContent=slides[i].dataset.part||'';
+    document.getElementById('bar').style.width=((i+1)/N*100)+'%';
+    animateBars(slides[i]);
+  }
+  document.querySelectorAll('.fill,.lbar').forEach(f=>f.style.width=f.dataset.w+'%');
+  document.getElementById('prev').onclick=()=>show(i-1);
+  document.getElementById('next').onclick=()=>show(i+1);
+  document.addEventListener('keydown',e=>{
+    if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1)}
+    else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(i-1)}
+    else if(e.key==='Home')show(0); else if(e.key==='End')show(N-1);
+    else if((e.key==='l'||e.key==='L')&&!e.ctrlKey&&!e.metaKey&&!e.altKey)laser(!LZ.on);
+    else if(e.key==='Escape'&&LZ.on)laser(false);
+  });
+  // ---------- laser pointer: red dot with a short fading trail
+  const LZ={on:false,pts:[],cv:null,x:0,y:0,inside:false,raf:0};
+  function laser(on){LZ.on=on;const b=document.getElementById('laser');b.setAttribute('aria-pressed',on);b.textContent=on?'Laser on (L)':'Laser pointer';
+    document.documentElement.classList.toggle('laser-on',on);
+    if(on&&!LZ.cv){LZ.cv=document.createElement('canvas');LZ.cv.id='laser-cv';LZ.cv.style.cssText='position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:2147483000';document.body.appendChild(LZ.cv);
+      const st=document.createElement('style');st.textContent='html.laser-on .viewport,html.laser-on .viewport *{cursor:none!important}';document.head.appendChild(st);}
+    if(LZ.cv)LZ.cv.style.display=on?'block':'none';LZ.pts=[];if(on&&!LZ.raf)LZ.raf=requestAnimationFrame(lzDraw);}
+  document.getElementById('laser').onclick=e=>{laser(!LZ.on);e.currentTarget.blur();};
+  addEventListener('mousemove',e=>{if(!LZ.on)return;const vp=document.querySelector('.viewport');const r=vp.getBoundingClientRect();
+    LZ.inside=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;LZ.x=e.clientX;LZ.y=e.clientY;
+    if(LZ.inside)LZ.pts.push({x:e.clientX,y:e.clientY,t:performance.now()});});
+  document.addEventListener('mouseleave',()=>{LZ.inside=false;});
+  function lzDraw(){if(!LZ.on){LZ.raf=0;const c=LZ.cv;if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);return;}
+    const c=LZ.cv,d=Math.min(2,devicePixelRatio||1),W=innerWidth,H=innerHeight;if(c.width!==W*d||c.height!==H*d){c.width=W*d;c.height=H*d;}
+    const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,W,H);const now=performance.now();
+    LZ.pts=LZ.pts.filter(p=>now-p.t<220);
+    x.lineCap='round';x.lineJoin='round';
+    for(let k=1;k<LZ.pts.length;k++){const a=LZ.pts[k-1],b=LZ.pts[k],f=1-(now-b.t)/220;x.strokeStyle=`rgba(255,40,40,${.45*f})`;x.lineWidth=2+7*f;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke();}
+    if(LZ.inside&&!document.getElementById('view-talk').hidden){
+      const g=x.createRadialGradient(LZ.x,LZ.y,0,LZ.x,LZ.y,22);g.addColorStop(0,'rgba(255,60,60,.55)');g.addColorStop(1,'rgba(255,0,0,0)');
+      x.fillStyle=g;x.beginPath();x.arc(LZ.x,LZ.y,22,0,6.3);x.fill();
+      x.fillStyle='#ff2a2a';x.beginPath();x.arc(LZ.x,LZ.y,6.5,0,6.3);x.fill();x.fillStyle='#ffd0d0';x.beginPath();x.arc(LZ.x-1.5,LZ.y-1.5,2.2,0,6.3);x.fill();}
+    LZ.raf=requestAnimationFrame(lzDraw);}
+  window.DeckLaser=laser;
+  let tx=null;
+  wrap.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+  wrap.addEventListener('touchend',e=>{ if(tx===null)return; const dx=e.changedTouches[0].clientX-tx; if(Math.abs(dx)>40) show(dx<0?i+1:i-1); tx=null; });
+  document.getElementById('fs').onclick=()=>{
+    try{ const el=document.documentElement; (document.fullscreenElement?document.exitFullscreen():el.requestFullscreen()).catch(()=>{}); }catch(_){}
+  };
+  addEventListener('resize',fit); fit(); show(i);
+
+  // generative neurons on the title slide
+  const c=document.getElementById('neurons'), ctx=c.getContext('2d');
+  c.width=1600*2; c.height=900*2; ctx.scale(2,2);
+  seed=7;
+  const cols=['#5fe39a','#b18cff','#56b4ff','#5fe39a'];
+  function branch(x,y,a,len,w,depth,col){
+    if(depth<=0||len<4)return;
+    const segs=6; let cx=x,cy=y,ca=a;
+    ctx.strokeStyle=col; ctx.lineWidth=w; ctx.beginPath(); ctx.moveTo(cx,cy);
+    for(let s=0;s<segs;s++){ ca+=(rnd()-.5)*.5; cx+=Math.cos(ca)*len/segs; cy+=Math.sin(ca)*len/segs; ctx.lineTo(cx,cy); }
+    ctx.stroke();
+    const k=rnd()<.85?2:3;
+    for(let j=0;j<k;j++) branch(cx,cy,ca+(rnd()-.5)*1.3,len*(.62+rnd()*.15),Math.max(.4,w*.68),depth-1,col);
+  }
+  ctx.globalCompositeOperation='lighter';
+  for(let n=0;n<26;n++){
+    const x=700+rnd()*900, y=rnd()*900, col=cols[n%cols.length];
+    ctx.globalAlpha=.35+rnd()*.35;
+    const arms=3+Math.floor(rnd()*3);
+    for(let a=0;a<arms;a++) branch(x,y,rnd()*Math.PI*2,60+rnd()*90,2.2,5,col);
+    ctx.globalAlpha=.9; ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x,y,4+rnd()*3,0,Math.PI*2); ctx.fill();
+  }
+})();
+</script>

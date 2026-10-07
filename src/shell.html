@@ -1,0 +1,566 @@
+<title>Fly Brain Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: an app shell — fixed top bar, one view at a time (overview, talk, arcade, cases, engine). Single dark "fluorescence on black" look by choice. */
+:root{
+  --bg:#07090d; --stage:#0c1016; --panel:#121823; --line:#243042; --dim:#3a4658;
+  --fg:#e9eef5; --muted:#8d9bb0;
+  --brain:#5fe39a; --optic:#b18cff; --vnc:#56b4ff; --female:#ff5fb8; --warn:#ffb454;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+  --bar:56px;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);margin:0}
+a{color:var(--vnc)}
+.ico:not([width]){width:1em;height:1em}
+.ico{stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* top bar */
+.appbar{position:fixed;left:0;right:0;top:0;z-index:10;height:var(--bar);padding-top:env(safe-area-inset-top,0px);padding-inline:16px;display:flex;align-items:center;gap:22px;background:rgba(7,9,13,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px;color:var(--fg);text-decoration:none;white-space:nowrap}
+.brand .ico{font-size:26px;color:var(--brain)}
+.nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;min-width:0}
+.nav a{font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:8px 12px;border-radius:6px;white-space:nowrap}
+.nav a:hover{color:var(--fg)}
+.nav a.on{color:var(--bg);background:var(--brain)}
+.nav a:focus-visible{outline:2px solid var(--brain);outline-offset:2px}
+.view{position:fixed;left:0;right:0;top:calc(var(--bar) + env(safe-area-inset-top,0px));bottom:0;overflow:auto}
+#view-talk{overflow:hidden}
+.wrapc{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:40px 80px;box-sizing:border-box}
+.eyeb{font-family:var(--mono);font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.h1{font-family:var(--display);font-weight:800;font-size:clamp(40px,7vw,84px);line-height:1;letter-spacing:-.02em;margin:0;text-wrap:balance}
+.h2{font-family:var(--display);font-weight:800;font-size:clamp(28px,4vw,44px);line-height:1.05;letter-spacing:-.02em;margin:0;text-wrap:balance}
+.lede{font-size:19px;line-height:1.55;color:#c5cfdc;max-width:640px;margin:18px 0 0}
+.mu{color:var(--muted)}
+
+/* home */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.hero > *{min-width:0}
+.hero canvas{width:100%;aspect-ratio:1;max-width:100%;border-radius:12px;border:1px solid var(--line);background:#0a0e14}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.btn{font-family:var(--mono);font-size:14px;padding:12px 18px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg);text-decoration:none;cursor:pointer}
+.btn.pri{background:var(--brain);color:var(--bg);border-color:var(--brain);font-weight:600}
+.btn:hover{border-color:var(--muted)}
+.btn:focus-visible{outline:2px solid var(--brain);outline-offset:2px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:48px}
+.kpi{border-top:2px solid var(--line);padding-top:14px}
+.kpi b{display:block;font-family:var(--display);font-size:clamp(28px,4vw,44px);font-weight:800;font-variant-numeric:tabular-nums}
+.kpi span{font-size:14px;color:var(--muted)}
+.mods{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:48px}
+.mod{display:flex;flex-direction:column;gap:10px;padding:22px;border:1px solid var(--line);border-radius:10px;background:var(--panel);text-decoration:none;color:var(--fg);transition:border-color .2s,transform .2s;min-width:0}
+.mod:hover{border-color:var(--brain);transform:translateY(-2px)}
+.mod .ico{font-size:38px}
+.mod b{font-family:var(--display);font-size:22px}
+.mod span{font-size:14px;color:var(--muted);line-height:1.5}
+
+/* arcade */
+.arcade{display:grid;grid-template-columns:220px minmax(0,1fr);gap:20px;max-width:1500px;margin:0 auto;padding-inline:16px;padding-block:20px 60px;box-sizing:border-box}
+#game-list{display:flex;flex-direction:column;gap:8px}
+.game-pick{display:flex;gap:12px;align-items:center;padding:12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);text-decoration:none;color:var(--fg)}
+.game-pick .ico{font-size:30px}
+.game-pick b{display:block;font-family:var(--display);font-size:16px}
+.game-pick small{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.game-pick.on{border-color:var(--brain);background:#13221c}
+.game-pick:focus-visible{outline:2px solid var(--brain);outline-offset:2px}
+.disclaim{margin-top:14px;font-size:12px;line-height:1.5;color:var(--muted);border:1px dashed var(--line);border-radius:8px;padding:12px}
+.ghead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.ghead h2{font-family:var(--display);font-size:32px;margin:0}
+.ghead span{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.stage2{display:grid;align-items:stretch;grid-template-columns:minmax(0,2fr) minmax(0,.75fr);gap:16px;margin-top:14px}
+.panel{border:1px solid var(--line);border-radius:10px;background:var(--stage);overflow:hidden;min-width:0}
+.panel canvas{display:block;width:100%;height:auto}
+.wpanel{display:flex;flex-direction:column}
+.gview{position:relative;flex:1 1 auto;min-height:360px;max-width:100%}
+.gview canvas{position:absolute;inset:0;width:100%;height:100%}
+#cv-brain{aspect-ratio:420/360}
+#cv-anat{aspect-ratio:420/460}
+#anat-legend{display:grid;gap:6px;padding:10px 12px;border-top:1px solid var(--line)}
+#anat-legend .ar{display:grid;grid-template-columns:10px minmax(0,1fr) 54px;gap:8px;align-items:center;font-size:12px}
+#anat-legend i{width:9px;height:9px;border-radius:50%}
+#anat-legend b{display:block;color:var(--fg);font-weight:500}
+#anat-legend small{display:block;color:var(--muted);font-family:var(--mono);font-size:10px}
+#anat-legend em{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+#anat-legend u{display:block;height:100%;text-decoration:none;transition:width .2s}
+#cv-chart{aspect-ratio:620/170}
+.ptitle{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line)}
+.controls2{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.controls2 button{font-family:var(--mono);font-size:13px;padding:9px 14px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer}
+.controls2 button:hover{border-color:var(--muted)}
+.controls2 button:focus-visible{outline:2px solid var(--brain);outline-offset:2px}
+#btn-learn{border-color:var(--brain);color:var(--brain)}
+#btn-learn.off{border-color:var(--warn);color:var(--warn)}
+.speed{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.speed button{border:0;border-radius:0;border-right:1px solid var(--line)}
+.speed button:last-child{border-right:0}
+.speed button.on{background:var(--brain);color:var(--bg)}
+#game-msg{font-size:15px;line-height:1.45;color:#c5cfdc;min-height:44px;margin-top:12px;padding:10px 14px;border-left:3px solid var(--brain);background:var(--panel);border-radius:0 6px 6px 0}
+.below{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:16px}
+#game-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
+.stat{background:var(--stage);padding:10px 12px;min-width:0}
+.stat span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stat b{font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+.info{padding:16px;display:grid;gap:14px;font-size:14px;line-height:1.55}
+.info h4{margin:0 0 4px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.info p{margin:0}
+#game-refs{display:flex;flex-direction:column;gap:6px}
+#game-refs a{text-decoration:none}
+#brain-legend{display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 12px;font-size:12px;color:var(--muted);border-top:1px solid var(--line)}
+#brain-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+#brain-legend b{color:var(--fg);font-family:var(--mono);font-weight:600;margin-right:4px}
+
+/* cases */
+.cases{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}
+.case{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:20px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.case .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.case .ico{font-size:34px}
+.case .when{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.case h3{margin:0;font-family:var(--display);font-size:22px}
+.case p{margin:0;font-size:14px;line-height:1.5;color:#c5cfdc}
+.case .who{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.case .links{display:flex;gap:12px;flex-wrap:wrap;margin-top:auto;padding-top:8px;border-top:1px solid var(--line);font-family:var(--mono);font-size:13px}
+.case .links a{text-decoration:none}
+.case .ours{color:var(--brain)}
+.press{margin-top:28px;display:flex;gap:10px;flex-wrap:wrap}
+.press a{font-family:var(--mono);font-size:13px;border:1px solid var(--line);border-radius:20px;padding:6px 14px;text-decoration:none}
+
+/* engine */
+.eng{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px}
+.eng > *{min-width:0}
+.card2{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:22px}
+.card2 h3{margin:0 0 10px;font-family:var(--display);font-size:22px}
+.card2 p,.card2 li{font-size:15px;line-height:1.6;color:#c5cfdc}
+.card2 ol{margin:0;padding-left:20px;display:grid;gap:8px}
+pre.code{margin:12px 0 0;background:#05070a;border:1px solid var(--line);border-radius:8px;padding:16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:#c5cfdc;overflow-x:auto}
+pre.code .k{color:var(--brain)} pre.code .c{color:var(--muted)}
+.tblwrap{overflow-x:auto;margin-top:12px}
+table.t2{width:100%;border-collapse:collapse;font-size:14px}
+table.t2 th,table.t2 td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+table.t2 th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:400}
+table.t2 td.num{font-variant-numeric:tabular-nums;text-align:right;font-family:var(--mono)}
+table.t2 a{text-decoration:none}
+.eq{font-family:var(--mono);font-size:17px;padding:14px;background:#05070a;border-radius:8px;border:1px solid var(--line);margin-top:10px;color:var(--fg)}
+
+
+/* live arena */
+.ar-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:36px;align-items:center}
+.ar-shot{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.ar-shot img{display:block;width:100%;height:auto}
+.ar-shot figcaption{position:absolute;left:0;right:0;bottom:0;padding:8px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);background:linear-gradient(transparent,rgba(7,9,13,.92))}
+.pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;padding:6px 12px;border-radius:20px;border:1px solid var(--line);margin-top:20px}
+.pill i{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.pill.ok{border-color:var(--brain);color:var(--brain)} .pill.ok i{background:var(--brain);box-shadow:0 0 10px var(--brain)}
+.pill.wait{border-color:var(--warn);color:var(--warn)} .pill.wait i{background:var(--warn)}
+.btn[aria-disabled="true"]{opacity:.45;pointer-events:none}
+.howto{margin-top:18px;border:1px dashed var(--line);border-radius:10px;padding:16px 18px;font-size:15px;line-height:1.6;color:#c5cfdc}
+.howto code{font-family:var(--mono);font-size:14px;background:#05070a;border:1px solid var(--line);border-radius:5px;padding:2px 7px;color:var(--brain)}
+.can{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
+.can .c{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.can .ico{font-size:34px}
+.can b{font-family:var(--display);font-size:18px}
+.can span{font-size:13px;color:var(--muted);line-height:1.5}
+.vs2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+@media (max-width:1000px){.ar-hero,.vs2{grid-template-columns:minmax(0,1fr)}.can{grid-template-columns:repeat(2,1fr)}.mods{grid-template-columns:repeat(2,1fr)}}
+
+
+/* learning-rule infographic */
+.lr-eq{font-family:var(--mono);font-size:18px;padding:14px 16px;background:#05070a;border:1px solid var(--line);border-radius:8px;margin:12px 0 18px;color:var(--fg);display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
+.lr-eq small{flex-basis:100%;font-size:12px;color:var(--muted)}
+.lr-eq .g{color:var(--brain)} .lr-eq .w{color:var(--warn)} .lr-eq .m{color:var(--female)}
+.lr-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.lr-card{margin:0;border:1px solid var(--line);border-radius:10px;background:var(--stage);padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.lr-card figcaption{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center}
+.lr-card figcaption .tag{grid-row:span 2;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-weight:600;background:var(--panel);border:1px solid currentColor}
+.lr-card figcaption b{font-family:var(--display);font-size:18px}
+.lr-card figcaption small{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.lr-card svg{width:100%;height:auto}
+.lr-card p{margin:0;font-size:13px;line-height:1.5;color:#c5cfdc}
+.lr .tag.g{color:var(--brain)} .lr .tag.w{color:var(--warn)} .lr .tag.m{color:var(--female)}
+.lr svg text{font-family:var(--mono);fill:var(--fg)}
+.lr svg .lbl{font-size:11px;fill:var(--muted)} .lr svg .h{font-size:13px;font-weight:600;fill:var(--fg)} .lr svg .big{font-size:22px;font-weight:600}
+.lr svg .c{text-anchor:middle} .lr svg .g{fill:var(--brain)} .lr svg .r{fill:#ff5f6d} .lr svg .b{fill:var(--vnc)} .lr svg .w{fill:var(--warn)} .lr svg .mu2{fill:var(--muted)} .lr svg .dark{fill:#07090d;font-weight:600}
+.lr svg .spk-g line{stroke:var(--optic);stroke-width:3;stroke-linecap:round}
+.lr svg .trace{fill:none;stroke:var(--warn);stroke-width:2.5}
+.lr svg .axis{stroke:var(--line);stroke-width:1.5}
+.lr svg .evt{stroke:#ff5f6d;stroke-width:2;stroke-dasharray:4 4}
+.lr svg .win{fill:rgba(255,180,84,.12);stroke:rgba(255,180,84,.5);stroke-dasharray:3 3}
+.lr svg .box{stroke-width:1.5}
+.lr svg .box.late{fill:rgba(95,227,154,.08);stroke:rgba(95,227,154,.5)} .lr svg .box.early{fill:rgba(255,95,109,.08);stroke:rgba(255,95,109,.5)} .lr svg .box.ok{fill:rgba(141,155,176,.08);stroke:var(--line)}
+.lr svg .n-p{fill:var(--optic)} .lr svg .n-w{fill:#5a4630;stroke:var(--warn);stroke-width:1.5} .lr svg .n-w.on{fill:var(--warn)} .lr svg .n-g{fill:var(--brain)} .lr svg .n-r{fill:#ff5f6d} .lr svg .n-b{fill:var(--vnc)}
+.lr svg .wires line{stroke:var(--line);stroke-width:1.5}
+.lr svg .syn{stroke:var(--line);stroke-width:1.5} .lr svg .syn.hot{stroke:var(--brain);stroke-width:3}
+.lr svg .da{fill:none;stroke-width:2.5;stroke-dasharray:5 4} .lr svg .g-s{stroke:var(--brain)} .lr svg .r-s{stroke:#ff5f6d} .lr svg .b-s{stroke:var(--vnc)}
+.lr svg .arr{stroke-width:3;marker-end:none}
+.lr svg .inh{stroke:#ff5f6d;stroke-width:2;stroke-dasharray:2 4}
+.lr svg .blk-r{fill:#ff5f6d} .lr svg .blk-b{fill:var(--vnc)}
+.lr-flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:18px}
+.lr-flow div{display:flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:20px;padding:6px 12px;background:var(--panel);font-size:13px}
+.lr-flow b{font-family:var(--mono);color:var(--brain)}
+.lr-flow i{color:var(--muted);font-style:normal}
+@media (prefers-reduced-motion:no-preference){.lr svg .syn.hot{stroke-dasharray:6 4;animation:lrflow 1.2s linear infinite}.lr svg .da{animation:lrflow 1s linear infinite}}
+@keyframes lrflow{to{stroke-dashoffset:-20}}
+@media (max-width:1000px){.lr-grid{grid-template-columns:minmax(0,1fr)}}
+.lc-lead{margin:0 0 14px}
+.lc-top{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;align-items:center}
+.lc-fig{margin:0;background:var(--stage);border:1px solid var(--line);border-radius:10px;padding:10px}
+.lc-fig svg{width:100%;height:auto;display:block}
+.lc svg text{font-family:var(--mono);fill:var(--fg)}
+.lc svg .c{text-anchor:middle} .lc .lc-t{font-size:16px;font-weight:600} .lc .lc-t.dk{fill:#07090d} .lc .lc-s{font-size:13px} .lc .lc-eq{font-size:18px;font-weight:600}
+.lc svg .p{fill:var(--optic)} .lc svg .g{fill:var(--brain)} .lc svg .m{fill:var(--female)} .lc svg .w{fill:var(--warn)} .lc svg .mu2{fill:var(--muted)}
+.lc .lc-pre{fill:rgba(177,140,255,.25);stroke:var(--optic);stroke-width:2} .lc .lc-post{fill:var(--brain)} .lc .lc-ax{stroke:var(--muted);stroke-width:3}
+.lc .lc-syn{fill:var(--warn)} .lc .lc-tr{fill:none;stroke:var(--warn);stroke-width:2.5} .lc .lc-mod{fill:var(--female)}
+.lc .lc-da{fill:none;stroke:var(--female);stroke-width:2.5;stroke-dasharray:5 5}
+@media (prefers-reduced-motion:no-preference){.lc .lc-da{animation:lrflow 1s linear infinite}.lc .lc-syn{animation:lcpulse 2s ease-in-out infinite;transform-origin:250px 150px;transform-box:view-box}}
+@keyframes lcpulse{50%{transform:scale(1.35)}}
+.lc-time{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.lc-time li{display:grid;grid-template-columns:76px 1fr;gap:10px;align-items:baseline;font-size:14px;line-height:1.45;color:#c5cfdc}
+.lc-time b{font-family:var(--mono);color:var(--brain);font-size:13px}
+.lc-time i{color:var(--fg);font-style:normal;font-weight:600}
+.lc-map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.lc-map div{border:1px solid var(--line);border-radius:10px;background:var(--stage);padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:1.5;color:#c5cfdc}
+.lc-map b{font-family:var(--display);font-size:16px}
+.lc-map .g{color:var(--brain)} .lc-map .w{color:var(--warn)} .lc-map .m{color:var(--female)}
+.lc-bp{margin:14px 0 0!important;padding:10px 14px;border-left:3px solid var(--vnc);background:var(--stage);border-radius:0 8px 8px 0}
+@media (max-width:1000px){.lc-top,.lc-map{grid-template-columns:minmax(0,1fr)}}
+
+
+@media (max-width:1000px){
+  .hero,.eng{grid-template-columns:minmax(0,1fr)}
+  .mods{grid-template-columns:repeat(2,1fr)}
+  .cases{grid-template-columns:repeat(2,1fr)}
+  .arcade{grid-template-columns:minmax(0,1fr)}
+  #game-list{flex-direction:row;overflow-x:auto}
+  .game-pick{min-width:180px}
+  .stage2,.below{grid-template-columns:minmax(0,1fr)}
+  .gview{flex:none;min-height:0;aspect-ratio:960/360}
+}
+@media (max-width:600px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .mods,.cases{grid-template-columns:1fr}
+  #game-stats{grid-template-columns:repeat(2,1fr)}
+  .brand span{display:none}
+}
+@media (prefers-reduced-motion:reduce){.mod{transition:none}}
+
+/* ===== deck (scoped) ===== */
+{{DECK_CSS}}
+</style>
+
+{{SPRITE}}
+
+<header class="appbar">
+  <a class="brand" href="#home"><svg class="ico"><use href="#i-fly"/></svg><span>Fly Brain Lab</span></a>
+  <nav class="nav" aria-label="Sections">
+    <a href="#home" data-v="home">Overview</a>
+    <a href="#talk" data-v="talk">Talk</a>
+    <a href="#arcade" data-v="arcade">Arcade</a>
+    <a href="#arena" data-v="arena">Live arena</a>
+    <a href="#cases" data-v="cases">Cases</a>
+    <a href="#engine" data-v="engine">Engine</a>
+  </nav>
+</header>
+
+<!-- ============ OVERVIEW ============ -->
+<main class="view" id="view-home">
+  <div class="wrapc">
+    <div class="hero">
+      <div>
+        <p class="eyeb">A connectome → AI project</p>
+        <h1 class="h1">Fly Brain <span style="color:var(--brain)">Lab</span></h1>
+        <p class="lede">The story of the complete male fruit fly brain map, and a playground where small spiking fly circuits learn to run, park, carve kebab and slice blocks in your browser.</p>
+        <div class="cta"><a class="btn pri" href="#talk">Watch the talk</a><a class="btn" href="#arcade">Open the arcade</a></div>
+      </div>
+      <canvas id="home-cv" width="600" height="600" aria-hidden="true"></canvas>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><b style="color:var(--brain)">166 k</b><span>neurons in the male fly map</span></div>
+      <div class="kpi"><b style="color:var(--optic)">125 M</b><span>synapses</span></div>
+      <div class="kpi"><b style="color:var(--vnc)">4</b><span>learning experiments</span></div>
+      <div class="kpi"><b style="color:var(--female)">~0.25 µW</b><span>power of a real fly brain</span></div>
+    </div>
+    <div class="mods">
+      <a class="mod" href="#talk"><svg class="ico" style="color:var(--brain)"><use href="#i-map"/></svg><b>Talk</b><span>35 slides: the map, open-source brains, demos, fly vs. AI.</span></a>
+      <a class="mod" href="#arcade"><svg class="ico" style="color:var(--optic)"><use href="#i-walk"/></svg><b>Arcade</b><span>Watch fly circuits learn four tasks live.</span></a>
+      <a class="mod" href="#arena"><svg class="ico" style="color:var(--warn)"><use href="#i-fly"/></svg><b>Live arena</b><span>The full 165,122-neuron fly in a physics body.</span></a>
+      <a class="mod" href="#cases"><svg class="ico" style="color:var(--vnc)"><use href="#i-play"/></svg><b>Cases</b><span>The internet’s fly-brain demos, with links.</span></a>
+      <a class="mod" href="#engine"><svg class="ico" style="color:var(--female)"><use href="#i-chip"/></svg><b>Engine</b><span>How the spiking engine and learning rules work.</span></a>
+    </div>
+  </div>
+</main>
+
+<!-- ============ TALK ============ -->
+<section class="view" id="view-talk" hidden>
+{{DECK_BODY}}
+</section>
+
+<!-- ============ ARCADE ============ -->
+<main class="view" id="view-arcade" hidden>
+  <div class="arcade">
+    <aside>
+      <p class="eyeb">Experiments</p>
+      <div id="game-list"></div>
+      <p class="disclaim">Each game runs a miniature, hand-wired circuit (13–40 neurons) named after real fly cell types, using leaky integrate-and-fire neurons like the connectome models. It is not the 166,000-neuron connectome.<br><br>3D fly: the flybody model (Janelia × Google DeepMind, Apache-2.0) with real walking kinematics (FlySuite), via Lulzx/fly-brain.<br><br>Doner machine: “#SketchfabWeeklyChallenge Food Döner Kebap” by Bob (MeBob). Knife: “Electric Doner Kebab Knife” by Dzclaboratory. Both CC BY 4.0, from Sketchfab; textures resized, meat recoloured live.</p>
+    </aside>
+    <div style="min-width:0">
+      <div class="ghead"><h2 id="game-title">Fly Runner</h2><span id="game-tag"></span></div>
+      <div class="stage2">
+        <div class="panel wpanel"><div class="ptitle"><span>World</span><span>1 tick = 1 ms</span></div><div class="gview"><canvas id="cv-3d"></canvas><canvas id="cv-game"></canvas></div></div>
+        <div class="panel"><div class="ptitle"><span>Fly brain · where it’s active</span><span>schematic</span></div><canvas id="cv-anat"></canvas><div id="anat-legend"></div></div>
+      </div>
+      <div class="controls2">
+        <button id="btn-play">Pause</button>
+        <button id="btn-learn">Learning: on</button>
+        <div class="speed" role="group" aria-label="Simulation speed"><button data-s="1">1×</button><button data-s="5">5×</button><button data-s="25">25×</button></div>
+        <button id="btn-reset">New naive brain</button>
+      </div>
+      <p id="game-msg"></p>
+      <div class="below">
+        <div class="panel"><div id="game-stats"></div><div class="ptitle"><span>Learning curve</span></div><canvas id="cv-chart"></canvas></div>
+        <div class="panel"><div class="ptitle"><span>Circuit · live spikes</span><span id="brain-meta"></span></div><canvas id="cv-brain"></canvas><div id="brain-legend"></div></div>
+        <div class="panel info">
+          <div><h4>Circuit</h4><p id="game-circuit"></p></div>
+          <div><h4>Learning rule</h4><p id="game-rule"></p></div>
+          <div><h4>Inspired by</h4><div id="game-refs"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+
+<!-- ============ LIVE ARENA ============ -->
+<main class="view" id="view-arena" hidden>
+  <div class="wrapc">
+    <div class="ar-hero">
+      <div>
+        <p class="eyeb">Live arena · full connectome</p>
+        <h2 class="h2">The whole fly: 165,122 neurons in a physics body</h2>
+        <p class="lede">Every neuron of the male fly CNS runs as a spiking network, drives a MuJoCo body, and sees through a trained compound eye. Place sugar, odours or heat, launch a looming threat, and watch the circuits respond.</p>
+        <span class="pill" id="ar-status"><i></i><span>Checking for the local arena…</span></span>
+        <div class="cta">
+          <a class="btn pri" id="ar-launch" href="/arena/arena.html" target="_blank" rel="noopener" aria-disabled="true">Launch local arena</a>
+          <a class="btn" id="ar-viewer" href="/arena/index.html" target="_blank" rel="noopener" aria-disabled="true">Connectome viewer</a>
+          <a class="btn" href="https://lulzx.com/fly-brain/arena.html" target="_blank" rel="noopener">Online version ↗</a>
+        </div>
+        <div class="howto" id="ar-howto">The arena is bundled in this project but needs a small local server (it shares one 100 MB connectome between worker threads, which browsers only allow on a cross-origin-isolated page). In the <code>fly-brain-lab</code> folder run <code>python serve.py</code>, then open <code>http://localhost:8000</code> and come back to this tab.</div>
+      </div>
+      <figure class="ar-shot" style="margin:0"><img src="arena-preview.jpg" alt="The live arena: a 3D fruit fly on a chequered floor, with controls on the left and live neuron activity on the right" width="1200" height="729"><figcaption>Running locally in Fly Brain Lab · arena by Lulzx (MIT)</figcaption></figure>
+    </div>
+    <div class="can">
+      <div class="c"><svg class="ico" style="color:var(--brain)"><use href="#i-taste"/></svg><b>Feed it</b><span>Place sugar, bitter or vinegar odour; it finds food by smell and taste.</span></div>
+      <div class="c"><svg class="ico" style="color:var(--warn)"><use href="#i-heat"/></svg><b>Stress it</b><span>Add heat, CO₂, wind or a looming threat and trigger the escape jump.</span></div>
+      <div class="c"><svg class="ico" style="color:var(--optic)"><use href="#i-brain"/></svg><b>Look inside</b><span>Live rates for smell, taste, looming detectors, giant fibre, walking and grooming circuits.</span></div>
+      <div class="c"><svg class="ico" style="color:var(--female)"><use href="#i-layers"/></svg><b>Remove the scaffolds</b><span>Switch off added code (gait CPG, grooming pattern…) to see what the wiring does alone.</span></div>
+    </div>
+    <div class="vs2">
+      <div class="card2"><h3>Arcade</h3><p>13–40 hand-wired neurons per game · learns live · runs in any browser, including this page.</p><p style="margin-top:8px"><a href="#arcade">Open the arcade →</a></p></div>
+      <div class="card2"><h3>Live arena</h3><p>165,122 real neurons, ~10.5 M connections · fixed wiring with neuromodulation · needs a desktop browser and the local server (or the online version).</p></div>
+    </div>
+    <p class="mu" style="font-size:13px;line-height:1.6;margin-top:24px">Arena: <a href="https://github.com/Lulzx/fly-brain" target="_blank" rel="noopener">Lulzx/fly-brain</a>, MIT licence, bundled unmodified in <code>arena/</code> (see LICENSE-fly-brain.txt and SOURCES-fly-brain.md). Connectome: Male CNS v1.0, Janelia FlyEM &amp; Google, CC-BY 4.0. Body: flybody (Janelia/DeepMind). Eye: flyvis (Lappalainen et al. 2024).</p>
+  </div>
+</main>
+
+<!-- ============ CASES ============ -->
+<main class="view" id="view-cases" hidden>
+  <div class="wrapc">
+    <p class="eyeb">September 2026 · the internet meets the connectome</p>
+    <h2 class="h2">What people made the fly brain do</h2>
+    <p class="lede">Days after the male fly map went public, developers wired it into games and gadgets. Views and claims below are as reported by the sources; we have not verified how each demo works.</p>
+    <div class="cases">
+      <div class="case"><div class="top"><svg class="ico" style="color:var(--female)"><use href="#i-saber"/></svg><span class="when">8 Sep 2026 · X</span></div><h3>Beat Saber</h3><p>A simulated fly brain swings the sabers. Reported ~22 M views in two days; the creator said only the motor side was finished.</p><span class="who">@_lyraaaa_</span><div class="links"><a href="https://x.com/_lyraaaa_/status/2097527368919470162" target="_blank" rel="noopener">Video ↗</a><a class="ours" href="#arcade-saber">Our version →</a></div></div>
+      <div class="case"><div class="top"><svg class="ico" style="color:var(--vnc)"><use href="#i-car"/></svg><span class="when">10 Sep 2026 · X</span></div><h3>Parallel parking</h3><p>The fly brain “completed the ultimate test”. Reported ~1.5 M views in a day.</p><span class="who">@alright_mark</span><div class="links"><a href="https://x.com/alright_mark/status/2098085928489177142" target="_blank" rel="noopener">Video ↗</a><a class="ours" href="#arcade-park">Our version →</a></div></div>
+      <div class="case"><div class="top"><svg class="ico" style="color:var(--warn)"><use href="#i-knife"/></svg><span class="when">Sep 2026 · X</span></div><h3>Doner kebab</h3><p>A fly brain carving a rotating kebab spit.</p><span class="who">@oozn</span><div class="links"><a href="https://x.com/oozn/status/2098508072670912833" target="_blank" rel="noopener">Video ↗</a><a class="ours" href="#arcade-kebab">Our version →</a></div></div>
+      <div class="case"><div class="top"><svg class="ico" style="color:var(--brain)"><use href="#i-walk"/></svg><span class="when">Sep 2026 · GitHub</span></div><h3>Chrome Dino game</h3><p>LC10a detectors → AOTU relays → DNs → front-leg motor neurons from MaleCNS v1.0. Learns to tap; shuffled wiring fails.</p><span class="who">shovon · cobanov</span><div class="links"><a href="https://github.com/shovon/malecns-v1-dinosaur-game" target="_blank" rel="noopener">Repo ↗</a><a href="https://flydino.cobanov.dev/" target="_blank" rel="noopener">Live ↗</a><a class="ours" href="#arcade-dino">Our version →</a></div></div>
+      <div class="case"><div class="top"><svg class="ico" style="color:var(--optic)"><use href="#i-cube"/></svg><span class="when">4 Sep 2026 · X</span></div><h3>Minecraft</h3><p>The full MaleCNS v1.0 connectome (all ~166,700 neurons) driving movement in Minecraft.</p><span class="who">Evan Sinclair Smith</span><div class="links"><a href="https://x.com/evnsnclr/status/2095975490708291948" target="_blank" rel="noopener">Video ↗</a></div></div>
+      <div class="case"><div class="top"><svg class="ico" style="color:var(--warn)"><use href="#i-fight"/></svg><span class="when">7 Sep 2026 · X</span></div><h3>Doom</h3><p>The fly brain wired into the classic shooter.</p><span class="who">Andrei Apanasik</span><div class="links"><a href="https://x.com/a_apanasik/status/2097096600556371996" target="_blank" rel="noopener">Video ↗</a></div></div>
+      <div class="case"><div class="top"><svg class="ico" style="color:var(--brain)"><use href="#i-bolt"/></svg><span class="when">10 Sep 2026 · X</span></div><h3>Bitcoin trading</h3><p>Dopamine neurons stimulated by trading profit; the fly decides to buy or sell.</p><span class="who">Alex Wormuth (“stonkfly”)</span><div class="links"><a href="https://x.com/wormuth/status/2098012107652391357" target="_blank" rel="noopener">Post ↗</a></div></div>
+      <div class="case"><div class="top"><svg class="ico" style="color:var(--optic)"><use href="#i-fly"/></svg><span class="when">Mar 2026 · Eon Systems</span></div><h3>Embodied whole-brain fly</h3><p>FlyWire brain + NeuroMechFly body + flyvis eyes in one loop: walks to food, grooms, feeds.</p><span class="who">Eon Systems</span><div class="links"><a href="https://eon.systems/updates" target="_blank" rel="noopener">Updates ↗</a><a href="https://www.youtube.com/watch?v=A8fDr7Rr7yM" target="_blank" rel="noopener">Video ↗</a></div></div>
+      <div class="case"><div class="top"><svg class="ico" style="color:var(--vnc)"><use href="#i-code"/></svg><span class="when">2026 · GitHub</span></div><h3>Fly in the browser</h3><p>165,122-neuron male CNS in WebAssembly with a MuJoCo body and flyvis eyes.</p><span class="who">Lulzx</span><div class="links"><a href="https://github.com/Lulzx/fly-brain" target="_blank" rel="noopener">Repo ↗</a><a href="https://lulzx.com/fly-brain/arena.html" target="_blank" rel="noopener">Live ↗</a><a class="ours" href="#arena">In our lab →</a></div></div>
+    </div>
+    <div class="press">
+      <a href="https://www.404media.co/a-digital-fly-brain-has-taken-over-the-internet/" target="_blank" rel="noopener">404 Media ↗</a>
+      <a href="https://knowyourmeme.com/memes/fruit-fly-brain-simulations" target="_blank" rel="noopener">Know Your Meme ↗</a>
+      <a href="https://www.ibm.com/think/news/fruit-fly-connectome-brain-map-minecraft-doom" target="_blank" rel="noopener">IBM Think ↗</a>
+      <a href="https://www.dexerto.com/gaming/googles-digital-fly-brain-gets-its-own-heaven-after-going-through-beat-saber-hell-3407304/" target="_blank" rel="noopener">Dexerto ↗</a>
+    </div>
+  </div>
+</main>
+
+<!-- ============ ENGINE ============ -->
+<main class="view" id="view-engine" hidden>
+  <div class="wrapc">
+    <p class="eyeb">Under the hood</p>
+    <h2 class="h2">A tiny spiking engine with fly learning rules</h2>
+    <div class="eng">
+      <div class="card2">
+        <h3>Neuron model</h3>
+        <p>Every hidden neuron is leaky integrate-and-fire, stepped every 1 ms. Sensory neurons fire as Poisson spike trains whose rate is set by the game.</p>
+        <div class="eq">v ← v − v·Δt/τ + Σ w·spikes &nbsp;·&nbsp; if v ≥ 1: spike, v ← 0</div>
+        <pre class="code"><span class="k">step</span>(){ <span class="c">// dt = 1 ms, tau = 20 ms</span>
+  for each neuron i:
+    if input:  spike = rand() &lt; rate·dt
+    else:      v += −v·0.05 + noise
+               if v ≥ th: spike, v = 0
+  for each spike: v[post] += w
+  trace[i] = trace[i]·0.996 + spike  <span class="c">// ~250 ms memory</span>
+}</pre>
+      </div>
+      <div class="card2">
+        <h3>Learning rules</h3>
+        <ol>
+          <li><b>Crash-gated credit</b> (runner, parking): after a failure, change only the synapses whose input neurons were recently active, signed by whether the action came too early or too late.</li>
+          <li><b>Dopamine-gated plasticity</b> (kebab): reward or punishment strengthens or weakens Kenyon-cell → MBON synapses that were active at the cut, like the fly mushroom body.</li>
+          <li><b>Error-driven credit</b> (slicer): misses strengthen the saber that should have moved; wrong swings weaken the one that did.</li>
+        </ol>
+        <p style="margin-top:12px">Wiring stays fixed; only one layer of synapses learns. That mirrors connectome-constrained models such as flyvis.</p>
+      </div>
+    </div>
+    <div class="card2 lr" style="margin-top:20px">
+      <h3>Learning rules at a glance</h3>
+      <p class="mu" style="margin:0 0 6px">All three share one idea: a synapse remembers how recently its input fired (an <b>eligibility trace</b>). When a teaching signal arrives, only recently active synapses change.</p>
+      <div class="lr-eq"><span>Δw</span> = <span class="g">η</span> × <span class="w">trace<sub>pre</sub></span> × <span class="m">teaching signal (±)</span><small>weights stay between 0 and a maximum · wiring never changes</small></div>
+      <div class="lr-grid">
+
+        <!-- 1. crash-gated credit -->
+        <figure class="lr-card">
+          <figcaption><span class="tag g">1</span><b>Crash-gated credit</b><small>Fly Runner · Parallel Parking</small></figcaption>
+          <svg viewBox="0 0 360 250" role="img" aria-label="Detector spikes leave a decaying trace; on a crash, late actions strengthen and early actions weaken the traced synapses">
+            <text x="10" y="18" class="lbl">detector spikes</text>
+            <g class="spk-g"><line x1="40" y1="28" x2="40" y2="44"/><line x1="62" y1="28" x2="62" y2="44"/><line x1="78" y1="28" x2="78" y2="44"/><line x1="92" y1="28" x2="92" y2="44"/><line x1="104" y1="28" x2="104" y2="44"/></g>
+            <text x="10" y="64" class="lbl">eligibility trace</text>
+            <path d="M30 108 L40 92 Q50 96 62 86 Q70 90 78 80 Q86 84 92 76 Q98 79 104 72 Q140 86 180 98 Q230 106 300 108" class="trace"/>
+            <line x1="10" y1="108" x2="340" y2="108" class="axis"/>
+            <line x1="150" y1="22" x2="150" y2="112" class="evt"/><text x="156" y="30" class="lbl r">crash</text>
+            <rect x="104" y="70" width="46" height="40" class="win"/><text x="127" y="126" class="lbl c w">last ~0.5 s</text>
+            <g transform="translate(0,140)">
+              <rect x="6" y="4" width="110" height="96" rx="10" class="box late"/><text x="61" y="26" class="h c">too late</text><text x="61" y="46" class="lbl c">acted late</text><text x="61" y="78" class="big c g">+Δw</text>
+              <rect x="125" y="4" width="110" height="96" rx="10" class="box early"/><text x="180" y="26" class="h c">too early</text><text x="180" y="46" class="lbl c">acted early</text><text x="180" y="78" class="big c r">−Δw</text>
+              <rect x="244" y="4" width="110" height="96" rx="10" class="box ok"/><text x="299" y="26" class="h c">success</text><text x="299" y="46" class="lbl c">on time</text><text x="299" y="78" class="big c mu2">0</text>
+            </g>
+          </svg>
+          <p>Only the synapses that were active just before the mistake get the blame, so the fly learns <i>when</i> to act.</p>
+        </figure>
+
+        <!-- 2. dopamine-gated -->
+        <figure class="lr-card">
+          <figcaption><span class="tag w">2</span><b>Dopamine-gated plasticity</b><small>Doner Kebab · mushroom body</small></figcaption>
+          <svg viewBox="0 0 360 250" role="img" aria-label="Colour inputs drive sparse Kenyon cells onto an MBON; PAM dopamine strengthens and PPL1 weakens active Kenyon-cell synapses">
+            <g class="nodes">
+              <circle cx="34" cy="50" r="11" class="n-p"/><circle cx="34" cy="86" r="11" class="n-p"/><circle cx="34" cy="122" r="11" class="n-p"/>
+              <text x="34" y="150" class="lbl c">colour</text>
+              <circle cx="130" cy="34" r="9" class="n-w on"/><circle cx="130" cy="62" r="9" class="n-w"/><circle cx="130" cy="90" r="9" class="n-w on"/><circle cx="130" cy="118" r="9" class="n-w"/><circle cx="130" cy="146" r="9" class="n-w"/>
+              <text x="130" y="172" class="lbl c">Kenyon cells</text><text x="130" y="186" class="lbl c mu2">(sparse)</text>
+              <circle cx="300" cy="90" r="18" class="n-g"/><text x="300" y="95" class="lbl c dark">cut</text><text x="300" y="128" class="lbl c">MBON</text>
+            </g>
+            <g class="wires"><line x1="45" y1="50" x2="121" y2="34"/><line x1="45" y1="86" x2="121" y2="90"/><line x1="45" y1="122" x2="121" y2="146"/><line x1="45" y1="86" x2="121" y2="62"/></g>
+            <line x1="139" y1="34" x2="282" y2="86" class="syn hot"/><line x1="139" y1="90" x2="282" y2="90" class="syn hot"/>
+            <line x1="139" y1="62" x2="282" y2="88" class="syn"/><line x1="139" y1="118" x2="282" y2="92" class="syn"/><line x1="139" y1="146" x2="282" y2="94" class="syn"/>
+            <g><circle cx="220" cy="24" r="10" class="n-g"/><text x="236" y="28" class="lbl g">PAM · reward</text><path d="M220 34 L214 58" class="da g-s"/></g>
+            <g><circle cx="220" cy="160" r="10" class="n-r"/><text x="236" y="164" class="lbl r">PPL1 · punish</text><path d="M220 150 L214 98" class="da r-s"/></g>
+            <g transform="translate(0,200)">
+              <rect x="6" y="0" width="170" height="44" rx="10" class="box late"/><text x="91" y="18" class="h c">crispy slice</text><text x="91" y="36" class="lbl c">active KC→MBON <tspan class="g">+Δw</tspan></text>
+              <rect x="184" y="0" width="170" height="44" rx="10" class="box early"/><text x="269" y="18" class="h c">raw slice</text><text x="269" y="36" class="lbl c">active KC→MBON <tspan class="r">−Δw</tspan></text>
+            </g>
+          </svg>
+          <p>Dopamine only changes the synapses of Kenyon cells that fired for <i>this</i> colour, as in the real fly mushroom body.</p>
+        </figure>
+
+        <!-- 3. error-driven -->
+        <figure class="lr-card">
+          <figcaption><span class="tag m">3</span><b>Error-driven credit</b><small>Rhythm Slicer</small></figcaption>
+          <svg viewBox="0 0 360 250" role="img" aria-label="Visual detectors drive left and right descending neurons; misses strengthen the correct side, wrong swings weaken the side that swung">
+            <g><rect x="14" y="30" width="22" height="22" rx="3" class="blk-r"/><rect x="14" y="62" width="22" height="22" rx="3" class="blk-r"/><rect x="14" y="94" width="22" height="22" rx="3" class="blk-b"/><rect x="14" y="126" width="22" height="22" rx="3" class="blk-b"/>
+              <text x="6" y="170" class="lbl">colour × depth</text></g>
+            <circle cx="170" cy="58" r="16" class="n-r"/><text x="170" y="63" class="lbl c dark">DN L</text>
+            <circle cx="170" cy="122" r="16" class="n-b"/><text x="170" y="127" class="lbl c dark">DN R</text>
+            <line x1="170" y1="76" x2="170" y2="104" class="inh"/><text x="182" y="94" class="lbl mu2">inhibit</text>
+            <line x1="38" y1="41" x2="152" y2="56" class="syn hot"/><line x1="38" y1="73" x2="152" y2="60" class="syn hot"/><line x1="38" y1="105" x2="152" y2="120" class="syn hot"/><line x1="38" y1="137" x2="152" y2="124" class="syn hot"/>
+            <line x1="38" y1="105" x2="152" y2="62" class="syn"/><line x1="38" y1="41" x2="152" y2="118" class="syn"/>
+            <path d="M186 58 L250 58" class="arr r-s"/><text x="262" y="62" class="lbl r">red saber</text>
+            <path d="M186 122 L250 122" class="arr b-s"/><text x="262" y="126" class="lbl b">blue saber</text>
+            <g transform="translate(0,184)">
+              <rect x="6" y="0" width="110" height="60" rx="10" class="box late"/><text x="61" y="20" class="h c">missed</text><text x="61" y="38" class="lbl c">correct side</text><text x="61" y="54" class="lbl c g">+Δw</text>
+              <rect x="125" y="0" width="110" height="60" rx="10" class="box early"/><text x="180" y="20" class="h c">wrong swing</text><text x="180" y="38" class="lbl c">side that swung</text><text x="180" y="54" class="lbl c r">−Δw</text>
+              <rect x="244" y="0" width="110" height="60" rx="10" class="box ok"/><text x="299" y="20" class="h c">hit</text><text x="299" y="38" class="lbl c">side that swung</text><text x="299" y="54" class="lbl c g">small +Δw</text>
+            </g>
+          </svg>
+          <p>Each saber has its own pathway, so blame goes to the side that should have moved, or the side that moved wrongly.</p>
+        </figure>
+      </div>
+      <div class="lr-flow">
+        <div><b>1</b><span>Senses fire</span></div><i>→</i>
+        <div><b>2</b><span>Synapses keep a trace</span></div><i>→</i>
+        <div><b>3</b><span>Action happens</span></div><i>→</i>
+        <div><b>4</b><span>Outcome: teaching signal</span></div><i>→</i>
+        <div><b>5</b><span>Traced synapses change</span></div>
+      </div>
+    </div>
+    <div class="card2 lc" id="lr-concepts" style="margin-top:20px">
+      <h3>The ideas behind the rules</h3>
+      <p class="mu lc-lead">A <b>three-factor rule</b> changes a synapse only when (1) its input fired, (2) its output fired, and (3) a broadcast teaching signal arrives. The signal often comes late, so each synapse keeps a fading memory of its activity: an <b>eligibility trace</b>. The arcade uses the simplest form, input trace × teaching signal.</p>
+      <div class="lc-top">
+        <figure class="lc-fig">
+          <svg viewBox="0 0 520 270" role="img" aria-label="Three-factor rule: presynaptic activity and postsynaptic activity tag a synapse with an eligibility trace; a broadcast neuromodulator turns the tag into a weight change">
+            <circle cx="70" cy="150" r="30" class="lc-pre"/><text x="70" y="156" class="lc-t c">pre</text>
+            <circle cx="450" cy="150" r="30" class="lc-post"/><text x="450" y="156" class="lc-t c dk">post</text>
+            <line x1="100" y1="150" x2="238" y2="150" class="lc-ax"/><line x1="262" y1="150" x2="420" y2="150" class="lc-ax"/>
+            <circle cx="250" cy="150" r="13" class="lc-syn"/><text x="250" y="186" class="lc-s c">synapse w</text>
+            <path d="M206 120 Q 214 96 226 104 Q 240 112 252 108 Q 270 102 294 116" class="lc-tr"/><text x="300" y="112" class="lc-s w">eligibility trace</text>
+            <circle cx="250" cy="34" r="16" class="lc-mod"/><text x="276" y="30" class="lc-s m">③ teaching signal</text><text x="276" y="48" class="lc-s mu2">dopamine · crash · error</text>
+            <path d="M250 52 L250 132" class="lc-da"/><path d="M236 56 L214 116" class="lc-da"/><path d="M264 56 L286 116" class="lc-da"/>
+            <text x="70" y="208" class="lc-s c p">① input fired</text><text x="450" y="208" class="lc-s c g">② output fired</text>
+            <text x="260" y="250" class="lc-eq c">Δw = η × <tspan class="p">pre</tspan> × <tspan class="g">post</tspan> × <tspan class="m">signal</tspan></text>
+          </svg>
+        </figure>
+        <ol class="lc-time">
+          <li><b>1949</b><span><i>Hebb</i>: cells that fire together wire together (factors ① + ②)</span></li>
+          <li><b>1958–60</b><span><i>Perceptron, delta rule</i>: change weights by input × error</span></li>
+          <li><b>1972</b><span><i>Rescorla–Wagner</i>: learning is driven by surprise, not reward itself</span></li>
+          <li><b>1997</b><span><i>Schultz, Dayan &amp; Montague</i>: dopamine neurons signal reward-prediction error (factor ③)</span></li>
+          <li><b>2007–16</b><span><i>Izhikevich; Frémaux &amp; Gerstner</i>: eligibility traces link a delayed reward to the right synapse</span></li>
+          <li><b>2015–16</b><span><i>Hige et al.; Aso &amp; Rubin</i>: in the fly mushroom body, dopamine rewrites Kenyon-cell → MBON synapses</span></li>
+        </ol>
+      </div>
+      <div class="lc-map">
+        <div><b class="g">Crash-gated credit</b><span>Three-factor rule + eligibility trace. The crash is factor ③, signed by “too early” or “too late”. Solves <i>which synapse caused it?</i> across a delay.</span></div>
+        <div><b class="w">Dopamine-gated</b><span>The fly mushroom body: sparse Kenyon cells carry the trace, PAM/PPL1 dopamine is factor ③. Simplified: in real flies dopamine mostly <i>weakens</i> KC→MBON synapses in its own compartment.</span></div>
+        <div><b class="m">Error-driven credit</b><span>The delta rule: Δw ∝ input × (target − output). A teacher says which saber should have moved, like supervised learning.</span></div>
+      </div>
+      <p class="lc-bp"><b>Why not backpropagation?</b> Backprop needs every synapse to receive an exact error sent backward through all layers. These rules are <b>local</b>: each synapse uses only its own trace plus one broadcast signal, something a brain or a neuromorphic chip can do.</p>
+    </div>
+    <div class="card2" style="margin-top:20px">
+      <h3>Circuits in the arcade</h3>
+      <div class="tblwrap"><table class="t2"><thead><tr><th>Experiment</th><th>Layers</th><th style="text-align:right">Neurons</th><th style="text-align:right">Synapses</th><th style="text-align:right">Plastic</th></tr></thead><tbody id="engine-rows"></tbody></table></div>
+    </div>
+    <div class="card2" style="margin-top:20px">
+      <h3>Roadmap</h3>
+      <ol>
+        <li>Swap hand-wired circuits for real MaleCNS v1.0 subsets from neuPrint (for example LC10a → AOTU → DN, as in the dino repo).</li>
+        <li>Add a shuffled-wiring control to every game to test whether the real wiring matters.</li>
+        <li>Run the full brain in a Web Worker with WebAssembly, as Lulzx’s project does.</li>
+        <li>Log runs and export learning curves for the paper.</li>
+      </ol>
+    </div>
+  </div>
+</main>
+
+<script src="core.js"></script>
+<script src="three.min.js"></script>
+<script src="GLTFLoader.js"></script>
+<script src="fly3d.js"></script>
+<script src="scene3d.js"></script>
+<script>
+{{DECK_JS}}
+</script>
+<script src="app.js"></script>
+<script>
+// home hero: generative neurons
+(function(){const c=document.getElementById('home-cv');if(!c)return;const x=c.getContext('2d');let s=21;const R=()=>{s=(s*16807)%2147483647;return(s-1)/2147483646};
+x.fillStyle='#0a0e14';x.fillRect(0,0,600,600);x.globalCompositeOperation='lighter';const cols=['#5fe39a','#b18cff','#56b4ff','#ff5fb8'];
+function br(px,py,a,l,w,d,col){if(d<=0)return;let cx=px,cy=py,ca=a;x.strokeStyle=col;x.lineWidth=w;x.beginPath();x.moveTo(cx,cy);for(let k=0;k<6;k++){ca+=(R()-.5)*.5;cx+=Math.cos(ca)*l/6;cy+=Math.sin(ca)*l/6;x.lineTo(cx,cy);}x.stroke();for(let j=0;j<2;j++)br(cx,cy,ca+(R()-.5)*1.3,l*.68,Math.max(.4,w*.68),d-1,col);}
+for(let n=0;n<16;n++){const px=60+R()*480,py=60+R()*480,col=cols[n%4];x.globalAlpha=.35+R()*.35;for(let a=0;a<4;a++)br(px,py,R()*6.28,50+R()*60,2,5,col);x.globalAlpha=.9;x.fillStyle=col;x.beginPath();x.arc(px,py,4,0,6.28);x.fill();}})();
+</script>
